@@ -1,6 +1,4 @@
 import { ProclaimStatus } from "./proclaim-status.js"
-export { ProclaimStatus } from "./proclaim-status.js"
-export type { ProclaimStatusEvents } from "./proclaim-status.js"
 
 export class ProclaimAPI {
 
