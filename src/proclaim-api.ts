@@ -1,3 +1,4 @@
+import { fetch } from 'undici'
 import { ProclaimStatus } from "./proclaim-status.js"
 
 export class ProclaimAPI {
@@ -61,9 +62,30 @@ export class ProclaimAPI {
 		void this.onAirPoll()
   }
 
-  private async onAirPoll() {
-    // Placeholder for on-air polling logic
-    console.log('Polling Proclaim status...');
+  private async onAirPoll(): Promise<void> {
+    const url = `http://${this.#ip}:52195/onair/session`
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'text/plain',
+        },
+      })
+
+      if (response.ok) {
+        const text = await response.text()
+        this.#status.connected = true
+        this.#status.onAir = (response.status === 200)
+        this.#status.sessionId = (response.status === 200) ? text : ''
+      }
+
+    } catch (error) {
+      console.error('Error fetching Proclaim status:', error)
+      this.#status.connected = false
+      this.#status.onAir = false
+      this.#status.sessionId = ''
+    }
   }
 
   destroy(): void {

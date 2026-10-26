@@ -5,6 +5,7 @@ export interface ProclaimStatusEvents {
   'configuredChanged': [configured: boolean]
   'configValidChanged': [configValid: boolean]
   'connectedChanged': [connected: boolean]
+  'sessionIdChanged': [sessionId: string]
 }
 
 export class ProclaimStatus extends EventEmitter<ProclaimStatusEvents> {
@@ -12,6 +13,8 @@ export class ProclaimStatus extends EventEmitter<ProclaimStatusEvents> {
   #configValid: boolean = false
   #connected: boolean = false
   #onAir: boolean = false
+
+  #sessionId: string = ''
 
   constructor() {
     super()
@@ -58,6 +61,17 @@ export class ProclaimStatus extends EventEmitter<ProclaimStatusEvents> {
     if (this.#onAir !== value) {
       this.#onAir = value
       this.emit('onAirChanged', value)
+    }
+  }
+
+  get sessionId() {
+    return this.#sessionId
+  }
+
+  set sessionId(value: string) {
+    if (this.#sessionId !== value) {
+      this.#sessionId = value
+      this.emit('sessionIdChanged', value)
     }
   }
 }
