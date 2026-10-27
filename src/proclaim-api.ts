@@ -1,4 +1,4 @@
-import { fetch } from 'undici'
+import { request } from 'undici'
 import { ProclaimStatus } from "./proclaim-status.js"
 import type { Presentation } from './proclaim-types.js'
 
@@ -80,21 +80,22 @@ export class ProclaimAPI {
     const url = `http://${this.#ip}:52195/onair/session`
 
     try {
-      const response = await fetch(url, {
+      const {statusCode, body} = await request(url, {
         method: 'GET',
         headers: {
           'Accept': 'text/plain',
         },
       })
 
-      if (response.ok) {
-        const text = await response.text()
+      if (statusCode >= 200 && statusCode < 300) {
+        const text = await body.text()
         this.#status.connected = true
-        this.#status.onAir = (response.status === 200)
-        this.#status.sessionId = (response.status === 200) ? text : ''
+        this.#status.onAir = (statusCode === 200)
+        this.#status.sessionId = (statusCode === 200) ? text : ''
       }
 
     } catch (error) {
+      console.error('Error polling onAir session:', error)
       this.#status.connected = false
       this.#status.onAir = false
       this.#status.sessionId = ''
@@ -109,7 +110,7 @@ export class ProclaimAPI {
 
 		const url = `http://${this.#ip}:52195/presentations/onair`
 
-		const response = await fetch(url, {
+		const {statusCode, body} = await request(url, {
 			method: 'GET',
 			headers: {
 				Accept: 'application/json',
@@ -117,7 +118,7 @@ export class ProclaimAPI {
 			},
 		})
 
-		return response.ok ? ((await response.json()) as Presentation) : null
+		return (statusCode === 200) ? ((await body.json()) as Presentation) : null
 	}
 
   destroy(): void {
