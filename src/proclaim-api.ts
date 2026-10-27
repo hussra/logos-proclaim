@@ -107,11 +107,6 @@ export class ProclaimAPI {
 			return null
 		}
 
-		console.log(
-			'debug',
-			`Fetching presentation for sessionId: ${this.#status.sessionId} using authToken: ${this.#status.authToken}`,
-		)
-
 		const url = `http://${this.#ip}:52195/presentations/onair`
 
 		const response = await fetch(url, {
@@ -119,7 +114,6 @@ export class ProclaimAPI {
 			headers: {
 				Accept: 'application/json',
 				Onairsessionid: this.#status.sessionId,
-				...(this.authRequired && this.#status.authenticated ? { ProclaimAuthToken: this.#status.authToken } : {}),
 			},
 		})
 
