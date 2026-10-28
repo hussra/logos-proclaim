@@ -103,7 +103,7 @@ export class ProclaimAPI {
     } catch (error) {
 
       const undiciError = error as errors.UndiciError
-      if (undiciError.code !== 'ECONNREFUSED') {
+      if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
         console.error('Error polling onAir session:', error)
       }
 
@@ -150,7 +150,7 @@ export class ProclaimAPI {
     } catch (error) {
 
       const undiciError = error as errors.UndiciError
-      if (undiciError.code !== 'ECONNREFUSED') {
+      if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
         console.error('Connection refused retrieving presentation data:', error)
       }
 
