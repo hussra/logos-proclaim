@@ -122,7 +122,7 @@ export class ProclaimStatus extends EventEmitter<ProclaimStatusEvents> {
     return this.#presentationLocalRevision
   }
 
-  set presentationLocalRevison(value: number) {
+  set presentationLocalRevision(value: number) {
     if (this.#presentationLocalRevision !== value) {
       this.#presentationLocalRevision = value
       this.emit('presentationLocalRevisionChanged', value)

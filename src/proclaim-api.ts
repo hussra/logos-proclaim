@@ -133,6 +133,8 @@ export class ProclaimAPI {
       if (statusCode === 200) {
         // Return the actual presentation
         this.#status.presentation = (await body.json()) as Presentation
+        this.#status.presentationLocalRevision = this.#status.presentation.localRevision
+        this.#status.step = 0
 
       } else if (statusCode === 404) {
         // Off air - set off air and return null
