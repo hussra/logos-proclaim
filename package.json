@@ -21,15 +21,19 @@
   "packageManager": "yarn@4.18.0",
   "scripts": {
     "build": "rimraf dist && tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "lint": "eslint ."
   },
   "type": "module",
   "main": "dist/proclaim-api.js",
   "types": "dist/proclaim-api.d.ts",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.5",
+    "eslint": "^10.13.0",
     "rimraf": "^6.1.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1"
   },
   "dependencies": {
     "undici": "^8.12.3"
