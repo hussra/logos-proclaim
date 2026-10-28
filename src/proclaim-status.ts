@@ -14,18 +14,18 @@ export interface ProclaimStatusEvents {
 }
 
 export class ProclaimStatus extends EventEmitter<ProclaimStatusEvents> {
-  #configured: boolean = false
-  #configValid: boolean = false
-  #connected: boolean = false
-  #authenticated: boolean = false
-  #onAir: boolean = false
+  #configured = false
+  #configValid = false
+  #connected = false
+  #authenticated = false
+  #onAir = false
 
-  #sessionId: string = ''
-  #authToken: string = ''
+  #sessionId = ''
+  #authToken = ''
 
   #presentation: Presentation | null = null
-  #presentationLocalRevision: number = 0
-  #step: number = 0
+  #presentationLocalRevision = 0
+  #step = 0
 
   constructor() {
     super()

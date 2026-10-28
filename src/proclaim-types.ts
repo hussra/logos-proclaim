@@ -18,7 +18,7 @@ export interface Presentation {
 	warmupStartIndex: number // Index of the first service item in the warmup service section
 	serviceStartIndex: number // Index of the first service item in the service section
 	postServiceStartIndex: number // Index of the first service item in the post-service section
-	serviceItems: Array<ServiceItem> // The service items within the presentation
+	serviceItems: ServiceItem[] // The service items within the presentation
 }
 
 export enum ServiceItemKind {
@@ -36,7 +36,7 @@ export interface ServiceItem {
 	title: string // Title of the service item
 	notes: string // Notes for the service item
 	kind: ServiceItemKind // The kind of service item, e.g. "SongLyrics"
-	slides: Array<Slide> // The individual slides within the service item
+	slides: Slide[] // The individual slides within the service item
 }
 
 // Slides within a service item

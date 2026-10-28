@@ -17,9 +17,6 @@ export class ProclaimAPI {
 
   #status: ProclaimStatus = new ProclaimStatus()
 
-  constructor() {
-  }
-
   get ip() {
     return this.#ip
   }
