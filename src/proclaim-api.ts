@@ -1,6 +1,12 @@
-import { request } from 'undici'
+import { request, Agent, setGlobalDispatcher, errors } from 'undici'
 import { ProclaimStatus } from "./proclaim-status.js"
 import type { Presentation } from './proclaim-types.js'
+
+setGlobalDispatcher(
+  new Agent({
+    connectTimeout: 500,
+  })
+)
 
 export class ProclaimAPI {
 
@@ -62,7 +68,7 @@ export class ProclaimAPI {
     // When we get a new session ID, fetch the presentation data for that session
     this.#status.on('sessionIdChanged', async (sessionId) => {
       if (sessionId !== '') {
-        this.#status.presentation = await this.getPresentation()
+        await this.loadPresentation()
       } else {
         this.#status.presentation = null
       }
@@ -95,14 +101,19 @@ export class ProclaimAPI {
       }
 
     } catch (error) {
-      console.error('Error polling onAir session:', error)
+
+      const undiciError = error as errors.UndiciError
+      if (undiciError.code !== 'ECONNREFUSED') {
+        console.error('Error polling onAir session:', error)
+      }
+
       this.#status.connected = false
       this.#status.onAir = false
       this.#status.sessionId = ''
     }
   }
 
-  async getPresentation(): Promise<Presentation | null> {
+  async loadPresentation() {
 		if (this.#status.sessionId.length === 0) {
 			console.log('debug', 'No sessionId available, cannot fetch presentation')
 			return null
@@ -110,15 +121,44 @@ export class ProclaimAPI {
 
 		const url = `http://${this.#ip}:52195/presentations/onair`
 
-		const {statusCode, body} = await request(url, {
-			method: 'GET',
-			headers: {
-				Accept: 'application/json',
-				Onairsessionid: this.#status.sessionId,
-			},
-		})
+    try {
+      const {statusCode, body} = await request(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          Onairsessionid: this.#status.sessionId,
+        },
+      })
 
-		return (statusCode === 200) ? ((await body.json()) as Presentation) : null
+      if (statusCode === 200) {
+        // Return the actual presentation
+        this.#status.presentation = (await body.json()) as Presentation
+
+      } else if (statusCode === 404) {
+        // Off air - set off air and return null
+        this.#status.onAir = false
+        this.#status.sessionId = ''
+        this.#status.presentation = null
+
+      } else {
+        this.#status.connected = false
+        this.#status.onAir = false
+        this.#status.sessionId = ''
+        this.#status.presentation = null
+      }
+
+    } catch (error) {
+
+      const undiciError = error as errors.UndiciError
+      if (undiciError.code !== 'ECONNREFUSED') {
+        console.error('Connection refused retrieving presentation data:', error)
+      }
+
+      this.#status.connected = false
+      this.#status.onAir = false
+      this.#status.sessionId = ''
+      this.#status.presentation = null
+    }
 	}
 
   destroy(): void {
