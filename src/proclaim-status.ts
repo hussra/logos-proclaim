@@ -9,6 +9,8 @@ export interface ProclaimStatusEvents {
   'authenticatedChanged': [authenticated: boolean]
   'sessionIdChanged': [sessionId: string]
   'presentationChanged': [presentation: Presentation | null]
+  'presentationLocalRevisionChanged': [presentationLocalRevision: number]
+  'stepChanged': [step: number]
 }
 
 export class ProclaimStatus extends EventEmitter<ProclaimStatusEvents> {
@@ -20,7 +22,10 @@ export class ProclaimStatus extends EventEmitter<ProclaimStatusEvents> {
 
   #sessionId: string = ''
   #authToken: string = ''
+
   #presentation: Presentation | null = null
+  #presentationLocalRevision: number = 0
+  #step: number = 0
 
   constructor() {
     super()
@@ -110,6 +115,28 @@ export class ProclaimStatus extends EventEmitter<ProclaimStatusEvents> {
     if (this.#presentation !== value) {
       this.#presentation = value
       this.emit('presentationChanged', value)
+    }
+  }
+
+  get presentationLocalRevision() {
+    return this.#presentationLocalRevision
+  }
+
+  set presentationLocalRevison(value: number) {
+    if (this.#presentationLocalRevision !== value) {
+      this.#presentationLocalRevision = value
+      this.emit('presentationLocalRevisionChanged', value)
+    }
+  }
+
+  get step() {
+    return this.#step
+  }
+
+  set step(value: number) {
+    if (this.#step !== value) {
+      this.#step = value
+      this.emit('stepChanged', value)
     }
   }
 }
