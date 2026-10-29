@@ -90,6 +90,9 @@ export class ProclaimAPI {
   }
 
   private async onAirPoll(): Promise<void> {
+    // Only poll if we are off air - if we are on air, getPresentationStatus() will detect going off air
+    if (this.#status.onAir) return
+
     const url = `http://${this.#ip}:52195/onair/session`
 
     try {
