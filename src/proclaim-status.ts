@@ -1,6 +1,9 @@
 import Emittery from 'emittery'
 import type { Presentation } from './proclaim-types.js'
 
+/**
+ * Event types for the ProclaimStatus object - emitted when the corresponding properties change
+ */
 export interface ProclaimStatusEvents {
   'onAir': boolean
   'configured': boolean
@@ -13,6 +16,10 @@ export interface ProclaimStatusEvents {
   'step': number
 }
 
+/**
+ * Status object for the Proclaim API. Holds the various status values, and emits
+ * events when their values change. No behaviour other than this.
+ */
 export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   #configured = false
   #configValid = false
@@ -31,6 +38,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     super()
   }
 
+  /**
+   * Is the ProclaimAPI object configured?
+   */
   get configured() {
     return this.#configured
   }
@@ -42,6 +52,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     }
   }
 
+  /**
+   * Is the ProclaimAPI object configuration valid?
+   */
   get configValid() {
     return this.#configValid
   }
@@ -53,6 +66,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     }
   }
 
+  /**
+   * Is the ProclaimAPI object connected to Proclaim (i.e. Proclaim is running and reachable)?
+   */
   get connected() {
     return this.#connected
   }
@@ -64,6 +80,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     }
   }
 
+  /**
+   * Is the ProclaimAPI object authenticated to the App Command API?
+   */
   get authenticated() {
     return this.#authenticated
   }
@@ -75,6 +94,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     }
   }
 
+  /**
+   * Is Proclaim on air?
+   */
   get onAir() {
     return this.#onAir
   }
@@ -86,6 +108,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     }
   }
 
+  /**
+   * The Proclaim on-air session ID
+   */
   get sessionId() {
     return this.#sessionId
   }
@@ -97,6 +122,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     }
   }
 
+  /**
+   * The auth token for the App Command API
+   */
   get authToken() {
     return this.#authToken
   }
@@ -107,6 +135,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     }
   }
 
+  /**
+   * The currently on-air presentation
+   */
   get presentation() {
     return this.#presentation
   }
@@ -118,6 +149,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     }
   }
 
+  /**
+   * The currently on-air presentation's local revison number - used to detect changes to the presentation while on air
+   */
   get presentationLocalRevision() {
     return this.#presentationLocalRevision
   }
@@ -129,6 +163,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     }
   }
 
+  /**
+   * The currently on-air presentation's "step" - increments with each change to a new slide
+   */
   get step() {
     return this.#step
   }
