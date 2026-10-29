@@ -15,6 +15,8 @@ export class ProclaimAPI {
 
   #pollInterval?: ReturnType<typeof setInterval>
 
+  #statusPromise?: Promise<void> | null
+
   #status: ProclaimStatus = new ProclaimStatus()
 
   get ip() {
@@ -78,7 +80,21 @@ export class ProclaimAPI {
         return
       }
       this.#status.presentationLocalRevision = data.localRevision
-      this.getPresentationStatus()
+
+      // If we already have a #statusPromise, don't create another
+      if (!this.#statusPromise) {
+        this.#statusPromise = this.getPresentationStatus()
+      }
+    })
+
+    // When the presentation local revision changes, reload the whole presentation
+    this.#status.on('presentationLocalRevision', ({data}) => {
+      // First check if we already have this location revision - this will be
+      // the case if presentationLocalRevision was changed because the presentation
+      // itself was just loaded
+      if (this.#status.presentation?.localRevision !== data) {
+        this.loadPresentation()
+      }
     })
   }
 
@@ -206,13 +222,14 @@ export class ProclaimAPI {
         console.log(`Presentation status: ${JSON.stringify(status, null, 2)}`)
 
         // Call getPresentationStatus() again to get the next status update
-        this.getPresentationStatus()
+        this.#statusPromise = this.getPresentationStatus()
 
       } else if (statusCode === 404) {
         // Off air - set off air, clear session ID, clear presentation
         this.#status.onAir = false
         this.#status.sessionId = ''
         this.#status.presentation = null
+        this.#statusPromise = null
 
       } else {
         // Some other unexpected status code - set disconnected, set off air, clear session ID, clear presentation
@@ -220,6 +237,7 @@ export class ProclaimAPI {
         this.#status.onAir = false
         this.#status.sessionId = ''
         this.#status.presentation = null
+        this.#statusPromise = null
       }
 
     } catch (error) {
@@ -233,6 +251,7 @@ export class ProclaimAPI {
       this.#status.onAir = false
       this.#status.sessionId = ''
       this.#status.presentation = null
+      this.#statusPromise = null
     }
   }
 
