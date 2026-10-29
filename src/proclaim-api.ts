@@ -169,8 +169,9 @@ export class ProclaimAPI {
 	}
 
   private async getPresentationStatus() {
-    console.log(`Get presentation status: current local revision ${this.#status.presentationLocalRevision}, current step ${this.#status.step}`)
-
+    // Call /onair/statusChanged to get current presentation status, passing the current session ID, presentation
+    // local revision and step. If the details sent are all current, Proclaim will long-poll for up to a minute
+    // before responding.
     const url = `http://${this.#ip}:52195/onair/statusChanged?localrevision=${this.#status.presentationLocalRevision}&step=${this.#status.step}`
     try {
       const {statusCode, body} = await request(url, {
@@ -184,17 +185,25 @@ export class ProclaimAPI {
       if (statusCode === 200) {
         // Return the actual presentation
         const status = (await body.json()) as PresentationStatus
-        console.log(`Presentation status: ${JSON.stringify(status, null, 2)}`)
+
+        // Update the current local revision and step
         this.#status.step = status.status.revision
         this.#status.presentationLocalRevision = status.presentationLocalRevision
 
+        // TODO: add more ProclaimStatus properties for other returned values
+        console.log(`Presentation status: ${JSON.stringify(status, null, 2)}`)
+
+        // Call getPresentationStatus() again to get the next status update
+        this.getPresentationStatus()
+
       } else if (statusCode === 404) {
-        // Off air - set off air and return null
+        // Off air - set off air, clear session ID, clear presentation
         this.#status.onAir = false
         this.#status.sessionId = ''
         this.#status.presentation = null
 
       } else {
+        // Some other unexpected status code - set disconnected, set off air, clear session ID, clear presentation
         this.#status.connected = false
         this.#status.onAir = false
         this.#status.sessionId = ''
@@ -202,6 +211,7 @@ export class ProclaimAPI {
       }
 
     } catch (error) {
+      // Some unexpected error - set disconnected, set off air, clear session ID, clear presentation
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
         console.error('Connection refused retrieving presentation status:', error)
