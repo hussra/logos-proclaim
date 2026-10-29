@@ -110,7 +110,7 @@ export class ProclaimAPI {
     }
   }
 
-  async loadPresentation() {
+  private async loadPresentation() {
 		if (this.#status.sessionId.length === 0) {
 			console.log('debug', 'No sessionId available, cannot fetch presentation')
 			return null
