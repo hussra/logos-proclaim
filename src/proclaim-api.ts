@@ -1,6 +1,6 @@
 import { request, Agent, setGlobalDispatcher, errors } from 'undici'
 import { ProclaimStatus } from "./proclaim-status.js"
-import type { Presentation } from './proclaim-types.js'
+import type { Presentation, PresentationStatus } from './proclaim-types.js'
 
 setGlobalDispatcher(
   new Agent({
@@ -62,7 +62,7 @@ export class ProclaimAPI {
 
   // Internal event listeners for ProclaimStatus events
   private addEventListeners() {
-    // When we get a new session ID, fetch the presentation data for that session
+    // When we get a new session ID, fetch the presentation data for that session and set the current step to 0
     this.#status.on('sessionId', async ({data}) => {
       if (data !== '') {
         this.#status.step = 0
@@ -72,12 +72,13 @@ export class ProclaimAPI {
       }
     })
 
-    // When we load a new presentation, note its local revision
+    // When we load a new presentation, note its local revision and start checking presentation status
     this.#status.on('presentation', ({data}) => {
       if (data === null) {
         return
       }
       this.#status.presentationLocalRevision = data.localRevision
+      this.getPresentationStatus()
     })
   }
 
@@ -166,6 +167,52 @@ export class ProclaimAPI {
       this.#status.presentation = null
     }
 	}
+
+  private async getPresentationStatus() {
+    console.log(`Get presentation status: current local revision ${this.#status.presentationLocalRevision}, current step ${this.#status.step}`)
+
+    const url = `http://${this.#ip}:52195/onair/statusChanged?localrevision=${this.#status.presentationLocalRevision}&step=${this.#status.step}`
+    try {
+      const {statusCode, body} = await request(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          Onairsessionid: this.#status.sessionId,
+        },
+      })
+
+      if (statusCode === 200) {
+        // Return the actual presentation
+        const status = (await body.json()) as PresentationStatus
+        console.log(`Presentation status: ${JSON.stringify(status, null, 2)}`)
+        this.#status.step = status.status.revision
+        this.#status.presentationLocalRevision = status.presentationLocalRevision
+
+      } else if (statusCode === 404) {
+        // Off air - set off air and return null
+        this.#status.onAir = false
+        this.#status.sessionId = ''
+        this.#status.presentation = null
+
+      } else {
+        this.#status.connected = false
+        this.#status.onAir = false
+        this.#status.sessionId = ''
+        this.#status.presentation = null
+      }
+
+    } catch (error) {
+      const undiciError = error as errors.UndiciError
+      if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
+        console.error('Connection refused retrieving presentation status:', error)
+      }
+
+      this.#status.connected = false
+      this.#status.onAir = false
+      this.#status.sessionId = ''
+      this.#status.presentation = null
+    }
+  }
 
   destroy(): void {
     if (this.#pollInterval !== undefined) {
