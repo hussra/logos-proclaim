@@ -2,15 +2,15 @@ import Emittery from 'emittery'
 import type { Presentation } from './proclaim-types.js'
 
 export interface ProclaimStatusEvents {
-  'onAirChanged': boolean
-  'configuredChanged': boolean
-  'configValidChanged': boolean
-  'connectedChanged': boolean
-  'authenticatedChanged': boolean
-  'sessionIdChanged': string
-  'presentationChanged': Presentation | null
-  'presentationLocalRevisionChanged': number
-  'stepChanged': number
+  'onAir': boolean
+  'configured': boolean
+  'configValid': boolean
+  'connected': boolean
+  'authenticated': boolean
+  'sessionId': string
+  'presentation': Presentation | null
+  'presentationLocalRevision': number
+  'step': number
 }
 
 export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
@@ -38,7 +38,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   set configured(value: boolean) {
     if (this.#configured !== value) {
       this.#configured = value
-      this.emit('configuredChanged', value)
+      this.emit('configured', value)
     }
   }
 
@@ -49,7 +49,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   set configValid(value: boolean) {
     if (this.#configValid !== value) {
       this.#configValid = value
-      this.emit('configValidChanged', value)
+      this.emit('configValid', value)
     }
   }
 
@@ -60,7 +60,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   set connected(value: boolean) {
     if (this.#connected !== value) {
       this.#connected = value
-      this.emit('connectedChanged', value)
+      this.emit('connected', value)
     }
   }
 
@@ -71,7 +71,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   set authenticated(value: boolean) {
     if (this.#authenticated !== value) {
       this.#authenticated = value
-      this.emit('authenticatedChanged', value)
+      this.emit('authenticated', value)
     }
   }
 
@@ -82,7 +82,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   set onAir(value: boolean) {
     if (this.#onAir !== value) {
       this.#onAir = value
-      this.emit('onAirChanged', value)
+      this.emit('onAir', value)
     }
   }
 
@@ -93,7 +93,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   set sessionId(value: string) {
     if (this.#sessionId !== value) {
       this.#sessionId = value
-      this.emit('sessionIdChanged', value)
+      this.emit('sessionId', value)
     }
   }
 
@@ -114,7 +114,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   set presentation(value: Presentation | null) {
     if (this.#presentation !== value) {
       this.#presentation = value
-      this.emit('presentationChanged', value)
+      this.emit('presentation', value)
     }
   }
 
@@ -125,7 +125,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   set presentationLocalRevision(value: number) {
     if (this.#presentationLocalRevision !== value) {
       this.#presentationLocalRevision = value
-      this.emit('presentationLocalRevisionChanged', value)
+      this.emit('presentationLocalRevision', value)
     }
   }
 
@@ -136,7 +136,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   set step(value: number) {
     if (this.#step !== value) {
       this.#step = value
-      this.emit('stepChanged', value)
+      this.emit('step', value)
     }
   }
 }
