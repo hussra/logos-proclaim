@@ -1,6 +1,7 @@
 import { request, Agent, setGlobalDispatcher, errors } from 'undici'
 import { ProclaimStatus } from "./proclaim-status.js"
 import type { Presentation, PresentationStatus } from './proclaim-types.js'
+import { sleep } from './util.js'
 
 setGlobalDispatcher(
   new Agent({
@@ -79,15 +80,16 @@ export class ProclaimAPI {
     })
 
     // When we load a new presentation, note its local revision and start checking presentation status
-    this.#status.on('presentation', ({data}) => {
+    this.#status.on('presentation', async ({data}) => {
       // Just return if the presentation data got cleared
       if (data === null) {
         return
       }
       this.#status.presentationLocalRevision = data.localRevision
 
-      // If we already have a #statusPromise, don't create another
+      // If we don't already have a #statusPromise, create another (after a short pause)
       if (!this.#statusPromise) {
+        await sleep(1000)
         this.#statusPromise = this.getPresentationStatus()
       }
     })
@@ -149,7 +151,7 @@ export class ProclaimAPI {
 
   private async loadPresentation() {
 		if (this.#status.sessionId.length === 0) {
-			console.log('debug', 'No sessionId available, cannot fetch presentation')
+			console.error('debug', 'No sessionId available, cannot fetch presentation')
 			return null
 		}
 
@@ -208,12 +210,22 @@ export class ProclaimAPI {
         // Return the actual presentation
         const status = (await body.json()) as PresentationStatus
 
-        // Update the current local revision and step
-        this.#status.step = status.status.revision
-        this.#status.presentationLocalRevision = status.presentationLocalRevision
+        // Sometimes we seem to get a 200 status but an empty body.
+        // If so, try again.
+        if (status === null) {
+          console.error('/onair/statusChanged returned no data, will back off and try again')
+
+          await sleep(1000)
+          this.#statusPromise = this.getPresentationStatus()
+          return
+        }
 
         // TODO: add more ProclaimStatus properties for other returned values
         console.log(`Presentation status: ${JSON.stringify(status, null, 2)}`)
+
+        // Update the current local revision and step
+        this.#status.step = status.status.revision
+        this.#status.presentationLocalRevision = status.presentationLocalRevision
 
         // Call getPresentationStatus() again to get the next status update
         this.#statusPromise = this.getPresentationStatus()
