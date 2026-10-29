@@ -67,15 +67,18 @@ export class ProclaimAPI {
     // When we get a new session ID, fetch the presentation data for that session and set the current step to 0
     this.#status.on('sessionId', async ({data}) => {
       if (data !== '') {
+        // Just gone on air - set step to 0 and load presentation data
         this.#status.step = 0
         await this.loadPresentation()
       } else {
+        // Gone off air - clear presentation data
         this.#status.presentation = null
       }
     })
 
     // When we load a new presentation, note its local revision and start checking presentation status
     this.#status.on('presentation', ({data}) => {
+      // Just return if the presentation data got cleared
       if (data === null) {
         return
       }
@@ -130,7 +133,6 @@ export class ProclaimAPI {
         this.#status.connected = false
         this.#status.onAir = false
         this.#status.sessionId = ''
-        this.#status.presentation = null
       }
 
     } catch (error) {
@@ -143,7 +145,6 @@ export class ProclaimAPI {
       this.#status.connected = false
       this.#status.onAir = false
       this.#status.sessionId = ''
-      this.#status.presentation = null
     }
   }
 
@@ -172,14 +173,12 @@ export class ProclaimAPI {
         // Off air - set off air, clear session ID, clear presentation
         this.#status.onAir = false
         this.#status.sessionId = ''
-        this.#status.presentation = null
 
       } else {
         // Some other unexpected status code - set disconnected, set off air, clear session ID, clear presentation
         this.#status.connected = false
         this.#status.onAir = false
         this.#status.sessionId = ''
-        this.#status.presentation = null
       }
 
     } catch (error) {
@@ -192,7 +191,6 @@ export class ProclaimAPI {
       this.#status.connected = false
       this.#status.onAir = false
       this.#status.sessionId = ''
-      this.#status.presentation = null
     }
 	}
 
@@ -228,7 +226,6 @@ export class ProclaimAPI {
         // Off air - set off air, clear session ID, clear presentation
         this.#status.onAir = false
         this.#status.sessionId = ''
-        this.#status.presentation = null
         this.#statusPromise = null
 
       } else {
@@ -236,7 +233,6 @@ export class ProclaimAPI {
         this.#status.connected = false
         this.#status.onAir = false
         this.#status.sessionId = ''
-        this.#status.presentation = null
         this.#statusPromise = null
       }
 
@@ -250,7 +246,6 @@ export class ProclaimAPI {
       this.#status.connected = false
       this.#status.onAir = false
       this.#status.sessionId = ''
-      this.#status.presentation = null
       this.#statusPromise = null
     }
   }
