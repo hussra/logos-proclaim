@@ -69,5 +69,6 @@ export enum QuickScreenKind {
 
 export enum MediaState {
 	Playing = 'Playing',
+	Stopped = '', // At least, that's my guess at what it means
 	// More to follow - pending availability of API docs
 }
