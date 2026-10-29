@@ -67,11 +67,13 @@ export class ProclaimAPI {
     // When we get a new session ID, fetch the presentation data for that session and set the current step to 0
     this.#status.on('sessionId', async ({data}) => {
       if (data !== '') {
-        // Just gone on air - set step to 0 and load presentation data
+        // Gone on air - set step to 0 and load presentation data
+        this.#status.onAir = true
         this.#status.step = 0
         await this.loadPresentation()
       } else {
         // Gone off air - clear presentation data
+        this.#status.onAir = false
         this.#status.presentation = null
       }
     })
@@ -125,25 +127,22 @@ export class ProclaimAPI {
       if (statusCode >= 200 && statusCode < 300) {
         const text = await body.text()
         this.#status.connected = true
-        this.#status.onAir = (statusCode === 200)
         this.#status.sessionId = (statusCode === 200) ? text : ''
 
       } else {
-        // Some other unexpected status code - set disconnected, set off air, clear session ID, clear presentation
+        // Some other unexpected status code - set disconnected, clear session ID
         this.#status.connected = false
-        this.#status.onAir = false
         this.#status.sessionId = ''
       }
 
     } catch (error) {
-      // Some unexpected error - set disconnected, set off air, clear session ID, clear presentation
+      // Some unexpected error - set disconnected, clear session ID
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
         console.error('Error polling onAir session:', error)
       }
 
       this.#status.connected = false
-      this.#status.onAir = false
       this.#status.sessionId = ''
     }
   }
@@ -170,26 +169,23 @@ export class ProclaimAPI {
         this.#status.presentation = (await body.json()) as Presentation
 
       } else if (statusCode === 404) {
-        // Off air - set off air, clear session ID, clear presentation
-        this.#status.onAir = false
+        // Off air - clear session ID
         this.#status.sessionId = ''
 
       } else {
-        // Some other unexpected status code - set disconnected, set off air, clear session ID, clear presentation
+        // Some other unexpected status code - set disconnected & clear session ID
         this.#status.connected = false
-        this.#status.onAir = false
         this.#status.sessionId = ''
       }
 
     } catch (error) {
-      // Some unexpected error - set disconnected, set off air, clear session ID, clear presentation
+      // Some unexpected error - set disconnected, & clear session ID
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
         console.error('Connection refused retrieving presentation data:', error)
       }
 
       this.#status.connected = false
-      this.#status.onAir = false
       this.#status.sessionId = ''
     }
 	}
@@ -223,28 +219,25 @@ export class ProclaimAPI {
         this.#statusPromise = this.getPresentationStatus()
 
       } else if (statusCode === 404) {
-        // Off air - set off air, clear session ID, clear presentation
-        this.#status.onAir = false
+        // Off air - clear session ID, clear status promise
         this.#status.sessionId = ''
         this.#statusPromise = null
 
       } else {
-        // Some other unexpected status code - set disconnected, set off air, clear session ID, clear presentation
+        // Some other unexpected status code - set disconnected, clear session ID, clear status promise
         this.#status.connected = false
-        this.#status.onAir = false
         this.#status.sessionId = ''
         this.#statusPromise = null
       }
 
     } catch (error) {
-      // Some unexpected error - set disconnected, set off air, clear session ID, clear presentation
+      // Some unexpected error - set disconnected, clear session ID, clear status promise
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
         console.error('Connection refused retrieving presentation status:', error)
       }
 
       this.#status.connected = false
-      this.#status.onAir = false
       this.#status.sessionId = ''
       this.#statusPromise = null
     }
