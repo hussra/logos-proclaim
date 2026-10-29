@@ -103,6 +103,29 @@ export class ProclaimAPI {
         this.loadPresentation()
       }
     })
+
+    // When the selected item ID changes, load details of that item
+    this.#status.on('itemId', ({data}) => {
+      if (data === '00000000-0000-0000-0000-000000000000') {
+        // This seems to happen when a custom quick screen is active, or the on screen Bible - ignore
+        return
+      }
+
+      const itemIndex = this.#status.presentation?.serviceItems.findIndex((item) => item.id === data) ?? -1
+      const item = this.#status.presentation?.serviceItems[itemIndex]
+
+      if (item) {
+        this.#status.itemIndex = itemIndex
+        this.#status.itemTitle = item?.title
+        this.#status.itemKind = item?.kind
+        this.#status.itemSlideCount = item?.slides.length
+      } else {
+        this.#status.itemIndex = -1
+        this.#status.itemTitle = ''
+        this.#status.itemKind = null
+        this.#status.itemSlideCount = 0
+      }
+    })
   }
 
   private async initOnAirPolling() {

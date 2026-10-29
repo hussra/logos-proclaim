@@ -15,6 +15,10 @@ export interface ProclaimStatusEvents {
   'presentationLocalRevision': number
   'step': number
   'itemId': string
+  'itemIndex': number
+  'itemTitle': string
+  'itemKind': ServiceItemKind | null
+  'itemSlideCount': number
   'slideIndex': number
   'quickScreenKind': QuickScreenKind
   'mediaState': MediaState
