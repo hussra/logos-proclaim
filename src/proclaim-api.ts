@@ -33,6 +33,18 @@ export class ProclaimAPI {
     return this.#status
   }
 
+  private configIsValid() {
+    if (!this.#ip || this.#ip.trim() === '') {
+      return false
+    }
+    if (this.authRequired) {
+      if (!this.#password || this.#password.trim() === '') {
+        return false
+      }
+    }
+    return true
+  }
+
   async configure(ip?: string, password?: string) {
     this.#ip = ip || '127.0.0.1'
     this.#password = password || ''
@@ -48,27 +60,24 @@ export class ProclaimAPI {
     await this.initOnAirPolling()
   }
 
-  private configIsValid() {
-    if (!this.#ip || this.#ip.trim() === '') {
-      return false
-    }
-    if (this.authRequired) {
-      if (!this.#password || this.#password.trim() === '') {
-        return false
-      }
-    }
-    return true
-  }
-
   // Internal event listeners for ProclaimStatus events
   private addEventListeners() {
     // When we get a new session ID, fetch the presentation data for that session
     this.#status.on('sessionId', async ({data}) => {
       if (data !== '') {
+        this.#status.step = 0
         await this.loadPresentation()
       } else {
         this.#status.presentation = null
       }
+    })
+
+    // When we load a new presentation, note its local revision
+    this.#status.on('presentation', ({data}) => {
+      if (data === null) {
+        return
+      }
+      this.#status.presentationLocalRevision = data.localRevision
     })
   }
 
@@ -130,8 +139,6 @@ export class ProclaimAPI {
       if (statusCode === 200) {
         // Return the actual presentation
         this.#status.presentation = (await body.json()) as Presentation
-        this.#status.presentationLocalRevision = this.#status.presentation.localRevision
-        this.#status.step = 0
 
       } else if (statusCode === 404) {
         // Off air - set off air and return null
