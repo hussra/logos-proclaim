@@ -105,10 +105,17 @@ export class ProclaimAPI {
         this.#status.connected = true
         this.#status.onAir = (statusCode === 200)
         this.#status.sessionId = (statusCode === 200) ? text : ''
+
+      } else {
+        // Some other unexpected status code - set disconnected, set off air, clear session ID, clear presentation
+        this.#status.connected = false
+        this.#status.onAir = false
+        this.#status.sessionId = ''
+        this.#status.presentation = null
       }
 
     } catch (error) {
-
+      // Some unexpected error - set disconnected, set off air, clear session ID, clear presentation
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
         console.error('Error polling onAir session:', error)
@@ -117,6 +124,7 @@ export class ProclaimAPI {
       this.#status.connected = false
       this.#status.onAir = false
       this.#status.sessionId = ''
+      this.#status.presentation = null
     }
   }
 
@@ -142,12 +150,13 @@ export class ProclaimAPI {
         this.#status.presentation = (await body.json()) as Presentation
 
       } else if (statusCode === 404) {
-        // Off air - set off air and return null
+        // Off air - set off air, clear session ID, clear presentation
         this.#status.onAir = false
         this.#status.sessionId = ''
         this.#status.presentation = null
 
       } else {
+        // Some other unexpected status code - set disconnected, set off air, clear session ID, clear presentation
         this.#status.connected = false
         this.#status.onAir = false
         this.#status.sessionId = ''
@@ -155,7 +164,7 @@ export class ProclaimAPI {
       }
 
     } catch (error) {
-
+      // Some unexpected error - set disconnected, set off air, clear session ID, clear presentation
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
         console.error('Connection refused retrieving presentation data:', error)
