@@ -1,19 +1,19 @@
-import { EventEmitter } from 'node:events'
+import Emittery from 'emittery'
 import type { Presentation } from './proclaim-types.js'
 
 export interface ProclaimStatusEvents {
-  'onAirChanged': [onAir: boolean]
-  'configuredChanged': [configured: boolean]
-  'configValidChanged': [configValid: boolean]
-  'connectedChanged': [connected: boolean]
-  'authenticatedChanged': [authenticated: boolean]
-  'sessionIdChanged': [sessionId: string]
-  'presentationChanged': [presentation: Presentation | null]
-  'presentationLocalRevisionChanged': [presentationLocalRevision: number]
-  'stepChanged': [step: number]
+  'onAirChanged': boolean
+  'configuredChanged': boolean
+  'configValidChanged': boolean
+  'connectedChanged': boolean
+  'authenticatedChanged': boolean
+  'sessionIdChanged': string
+  'presentationChanged': Presentation | null
+  'presentationLocalRevisionChanged': number
+  'stepChanged': number
 }
 
-export class ProclaimStatus extends EventEmitter<ProclaimStatusEvents> {
+export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   #configured = false
   #configValid = false
   #connected = false

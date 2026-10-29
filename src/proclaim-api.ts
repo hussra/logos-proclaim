@@ -63,8 +63,8 @@ export class ProclaimAPI {
   // Internal event listeners for ProclaimStatus events
   private addEventListeners() {
     // When we get a new session ID, fetch the presentation data for that session
-    this.#status.on('sessionIdChanged', async (sessionId) => {
-      if (sessionId !== '') {
+    this.#status.on('sessionIdChanged', async ({data}) => {
+      if (data !== '') {
         await this.loadPresentation()
       } else {
         this.#status.presentation = null

@@ -36,6 +36,7 @@
     "typescript-eslint": "^8.72.1"
   },
   "dependencies": {
+    "emittery": "^2.2.0",
     "undici": "^8.12.3"
   }
 }
