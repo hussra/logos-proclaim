@@ -1,5 +1,5 @@
 import Emittery from 'emittery'
-import type { Presentation } from './proclaim-types.js'
+import { MediaState, QuickScreenKind, type Presentation } from './proclaim-types.js'
 
 /**
  * Event types for the ProclaimStatus object - emitted when the corresponding properties change
@@ -14,6 +14,10 @@ export interface ProclaimStatusEvents {
   'presentation': Presentation | null
   'presentationLocalRevision': number
   'step': number
+  'itemId': string
+  'slideIndex': number
+  'quickScreenKind': QuickScreenKind
+  'mediaState': MediaState
 }
 
 /**
@@ -33,6 +37,11 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   #presentation: Presentation | null = null
   #presentationLocalRevision = 0
   #step = 0
+
+  #itemId = ''
+  #slideIndex = 0
+  #quickScreenKind = QuickScreenKind.None
+  #mediaState = MediaState.Playing
 
   constructor() {
     super()
@@ -174,6 +183,62 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     if (this.#step !== value) {
       this.#step = value
       this.emit('step', value)
+    }
+  }
+
+  /**
+   * The ID of the currently showing service item
+   */
+  get itemId() {
+    return this.#itemId
+  }
+
+  set itemId(value: string) {
+    if (this.#itemId !== value) {
+      this.#itemId = value
+      this.emit('itemId', value)
+    }
+  }
+
+  /**
+   * The index (within its service item) of the currently showing slide
+   */
+  get slideIndex() {
+    return this.#slideIndex
+  }
+
+  set slideIndex(value: number) {
+    if (this.#slideIndex !== value) {
+      this.#slideIndex = value
+      this.emit('slideIndex', value)
+    }
+  }
+
+  /**
+   * The currently showing quick screen type
+   */
+  get quickScreenKind() {
+    return this.#quickScreenKind
+  }
+
+  set quickScreenKind(value: QuickScreenKind) {
+    if (this.#quickScreenKind !== value) {
+      this.#quickScreenKind = value
+      this.emit('quickScreenKind', value)
+    }
+  }
+
+  /**
+   * The current media state
+   */
+  get mediaState() {
+    return this.#mediaState
+  }
+
+  set mediaState(value: MediaState) {
+    if (this.#mediaState !== value) {
+      this.#mediaState = value
+      this.emit('mediaState', value)
     }
   }
 }
