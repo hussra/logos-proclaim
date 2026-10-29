@@ -220,12 +220,15 @@ export class ProclaimAPI {
           return
         }
 
-        // TODO: add more ProclaimStatus properties for other returned values
-        console.log(`Presentation status: ${JSON.stringify(status, null, 2)}`)
-
         // Update the current local revision and step
         this.#status.step = status.status.revision
         this.#status.presentationLocalRevision = status.presentationLocalRevision
+
+        // Update other status properties
+        this.#status.itemId = status.status.itemId
+        this.#status.slideIndex = status.status.slideIndex
+        this.#status.quickScreenKind = status.status.quickScreenKind
+        this.#status.mediaState = status.status.mediaState
 
         // Call getPresentationStatus() again to get the next status update
         this.#statusPromise = this.getPresentationStatus()
