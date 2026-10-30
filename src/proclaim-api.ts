@@ -76,6 +76,7 @@ export class ProclaimAPI {
         // Gone off air - clear presentation data
         this.#status.onAir = false
         this.#status.presentation = null
+        this.#status.itemId = ''
         this.#status.itemCount = 0
         this.#status.songCount = 0
       }
