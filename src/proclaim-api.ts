@@ -430,8 +430,6 @@ export class ProclaimAPI {
 	}
 
   private async getLocalWiFiRemoteAuthToken() {
-    console.log('Well hello')
-
     const url = `http://${this.#ip}:52195/auth/control`
     try {
       const {statusCode, body} = await request(url, {
