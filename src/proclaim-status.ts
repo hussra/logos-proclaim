@@ -39,7 +39,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   #onAir = false
 
   #sessionId = ''
-  #authToken = ''
+  #appCommandAPIAuthToken = ''
 
   #presentation: Presentation | null = null
   #itemCount = 0
@@ -148,13 +148,13 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   /**
    * The auth token for the App Command API
    */
-  get authToken() {
-    return this.#authToken
+  get appCommandAPIAuthToken() {
+    return this.#appCommandAPIAuthToken
   }
 
-  set authToken(value: string) {
-    if (this.#authToken !== value) {
-      this.#authToken = value
+  set appCommandAPIAuthToken(value: string) {
+    if (this.#appCommandAPIAuthToken !== value) {
+      this.#appCommandAPIAuthToken = value
     }
   }
 

@@ -372,7 +372,7 @@ export class ProclaimAPI {
       }
 
       const data = (await body.json()) as ProclaimAuthResponse
-      this.#status.authToken = data?.proclaimAuthToken
+      this.#status.appCommandAPIAuthToken = data?.proclaimAuthToken
       this.#status.authenticated = true
     } catch (error) {
       console.error(`Authentication error in getAuthToken(): ${error}`)
@@ -401,7 +401,7 @@ export class ProclaimAPI {
 			const {statusCode, body} = await request(url, {
 				headers: {
 					'Content-Type': 'application/json',
-					...(this.authRequired && this.#status.authenticated ? { ProclaimAuthToken: this.#status.authToken } : {}),
+					...(this.authRequired && this.#status.authenticated ? { ProclaimAuthToken: this.#status.appCommandAPIAuthToken } : {}),
 				},
 			})
 
@@ -410,7 +410,7 @@ export class ProclaimAPI {
       if (statusCode === 401 || statusCode === 403) {
         console.log(`Proclaim authentication failed: ${statusCode} ${data}`)
         this.#status.authenticated = false
-        this.#status.authToken = ''
+        this.#status.appCommandAPIAuthToken = ''
         return
       } else if (statusCode !== 200) {
         console.log(`Proclaim command failed: ${statusCode} ${data}`)
