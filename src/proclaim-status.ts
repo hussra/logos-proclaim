@@ -1,5 +1,5 @@
 import Emittery from 'emittery'
-import { MediaState, QuickScreenKind, type Presentation } from './proclaim-types.js'
+import { MediaState, QuickScreenKind, ServiceItemKind, type Presentation } from './proclaim-types.js'
 
 /**
  * Event types for the ProclaimStatus object - emitted when the corresponding properties change
