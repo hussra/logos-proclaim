@@ -94,7 +94,7 @@ export class ProclaimAPI {
 
       // If we already have a current itemId, we should recalculate status properties that depend on it
       if (this.#status.itemId && this.#status.itemId !== '') {
-        this.#status.emit('itemId', this.#status.itemId)
+        this.setItemProperties(this.#status.itemId)
       }
 
       // If we don't already have a #statusPromise, create another (after a short pause)
@@ -121,36 +121,45 @@ export class ProclaimAPI {
         return
       }
 
-      const itemIndex = this.#status.presentation?.serviceItems.findIndex((item) => item.id === data) ?? -1
-      const item = this.#status.presentation?.serviceItems[itemIndex]
-
-      if (item) {
-        this.#status.itemIndex = itemIndex
-        this.#status.itemTitle = item?.title
-        this.#status.itemKind = item?.kind
-        this.#status.itemSlideCount = item?.slides.length
-
-        const warmupStartIndex = this.#status.presentation?.warmupStartIndex ?? -1
-				const serviceStartIndex = this.#status.presentation?.serviceStartIndex ?? -1
-				const postServiceStartIndex = this.#status.presentation?.postServiceStartIndex ?? -1
-
-        if (itemIndex < warmupStartIndex) {
-          this.#status.servicePart = ServicePart.PreService
-        } else if (itemIndex < serviceStartIndex) {
-          this.#status.servicePart = ServicePart.Warmup
-        } else if (itemIndex < postServiceStartIndex) {
-          this.#status.servicePart = ServicePart.Service
-        } else {
-          this.#status.servicePart = ServicePart.PostService
-        }
-      } else {
-        this.#status.itemIndex = -1
-        this.#status.itemTitle = ''
-        this.#status.itemKind = null
-        this.#status.itemSlideCount = 0
-        this.#status.servicePart = null
-      }
+      this.setItemProperties(data)
     })
+  }
+
+  /**
+   * Calculate status properties that depend on the currently live service item:
+   * itemIndex, itemTitle, itemKind, itemSlideCount, servicePart
+   * @param data ID of live service item
+   */
+  private setItemProperties(data: string) {
+    const itemIndex = this.#status.presentation?.serviceItems.findIndex((item) => item.id === data) ?? -1
+    const item = this.#status.presentation?.serviceItems[itemIndex]
+
+    if (item) {
+      this.#status.itemIndex = itemIndex
+      this.#status.itemTitle = item?.title
+      this.#status.itemKind = item?.kind
+      this.#status.itemSlideCount = item?.slides.length
+
+      const warmupStartIndex = this.#status.presentation?.warmupStartIndex ?? -1
+      const serviceStartIndex = this.#status.presentation?.serviceStartIndex ?? -1
+      const postServiceStartIndex = this.#status.presentation?.postServiceStartIndex ?? -1
+
+      if (itemIndex < warmupStartIndex) {
+        this.#status.servicePart = ServicePart.PreService
+      } else if (itemIndex < serviceStartIndex) {
+        this.#status.servicePart = ServicePart.Warmup
+      } else if (itemIndex < postServiceStartIndex) {
+        this.#status.servicePart = ServicePart.Service
+      } else {
+        this.#status.servicePart = ServicePart.PostService
+      }
+    } else {
+      this.#status.itemIndex = -1
+      this.#status.itemTitle = ''
+      this.#status.itemKind = null
+      this.#status.itemSlideCount = 0
+      this.#status.servicePart = null
+    }
   }
 
   private async initOnAirPolling() {
