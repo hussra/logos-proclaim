@@ -1,6 +1,6 @@
 import { request, Agent, setGlobalDispatcher, errors } from 'undici'
 import { ProclaimStatus } from "./proclaim-status.js"
-import { ServiceItemKind, ServicePart, type Presentation, type PresentationStatus } from './proclaim-types.js'
+import { ServiceItemKind, ServicePart, type Presentation, type PresentationStatus, type ProclaimAuthResponse } from './proclaim-types.js'
 import { sleep } from './util.js'
 
 setGlobalDispatcher(
@@ -79,6 +79,13 @@ export class ProclaimAPI {
    * Add internal event listeners for ProclaimStatus events
    */ 
   private addEventListeners() {
+    // When we get connected to Proclaim, get an auth token if required
+    this.#status.on('connected', async ({data}) => {
+      if (data && this.authRequired) {
+        await this.getAuthToken()
+      }
+    })
+
     // When we get a new session ID, fetch the presentation data for that session and set the current step to 0
     this.#status.on('sessionId', async ({data}) => {
       if (data !== '') {
@@ -342,6 +349,44 @@ export class ProclaimAPI {
       this.#statusPromise = null
     }
   }
+
+  private async getAuthToken(): Promise<void> {
+    console.log('Getting auth token')
+    const url = `http://${this.#ip}:52195/appCommand/authenticate`
+    try {
+      const {statusCode, body} = await request(url, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          Password: this.#password
+        })
+      })
+
+      if (statusCode !== 200) {
+        console.error(`Authentication error in getAuthToken()`)
+        if (this.authRequired) {
+          this.#status.authenticated = false
+        }
+      }
+
+      const data = (await body.json()) as ProclaimAuthResponse
+      this.#status.authToken = data?.proclaimAuthToken
+      this.#status.authenticated = true
+    } catch (error) {
+      console.error(`Authentication error in getAuthToken(): ${error}`)
+      if (this.authRequired) {
+        this.#status.authenticated = false
+      }
+    }
+  }
+
+  async reconnect(): Promise<void> {
+		if (this.authRequired) {
+			await this.getAuthToken()
+		}
+	}
 
   /**
    * On being destroyed, clear the on-air polling interval

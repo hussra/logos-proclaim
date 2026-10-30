@@ -1,4 +1,11 @@
 /**
+ * Proclaim authentication response from /appCommand/authenticate
+ */
+export interface ProclaimAuthResponse {
+	proclaimAuthToken: string
+}
+
+/**
  * Aspect ratio options
  */
 export enum aspectRatio {
