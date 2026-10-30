@@ -1,5 +1,5 @@
 import Emittery from 'emittery'
-import { MediaState, QuickScreenKind, ServiceItemKind, type Presentation } from './proclaim-types.js'
+import { MediaState, QuickScreenKind, ServiceItemKind, ServicePart, type Presentation } from './proclaim-types.js'
 
 /**
  * Event types for the ProclaimStatus object - emitted when the corresponding properties change
@@ -24,6 +24,7 @@ export interface ProclaimStatusEvents {
   'slideIndex': number
   'quickScreenKind': QuickScreenKind
   'mediaState': MediaState
+  'servicePart': ServicePart | null
 }
 
 /**
@@ -54,6 +55,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   #itemSlideCount = 0
   #quickScreenKind = QuickScreenKind.None
   #mediaState = MediaState.Playing
+  #servicePart: ServicePart | null = null
 
   constructor() {
     super()
@@ -325,4 +327,19 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
       this.emit('mediaState', value)
     }
   }
+
+  /**
+   * Which part of the service we are in - pre-service, warm-up, service or post-service
+   */
+  get servicePart(): ServicePart | null {
+    return this.#servicePart
+  }
+
+  set servicePart(value: ServicePart | null) {
+    if (this.#servicePart !== value) {
+      this.#servicePart = value
+      this.emit('servicePart', value)
+    }
+  }
+
 }

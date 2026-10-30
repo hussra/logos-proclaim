@@ -1,6 +1,6 @@
 import { request, Agent, setGlobalDispatcher, errors } from 'undici'
 import { ProclaimStatus } from "./proclaim-status.js"
-import { ServiceItemKind, type Presentation, type PresentationStatus } from './proclaim-types.js'
+import { ServiceItemKind, ServicePart, type Presentation, type PresentationStatus } from './proclaim-types.js'
 import { sleep } from './util.js'
 
 setGlobalDispatcher(
@@ -121,11 +121,26 @@ export class ProclaimAPI {
         this.#status.itemTitle = item?.title
         this.#status.itemKind = item?.kind
         this.#status.itemSlideCount = item?.slides.length
+
+        const warmupStartIndex = this.#status.presentation?.warmupStartIndex ?? -1
+				const serviceStartIndex = this.#status.presentation?.serviceStartIndex ?? -1
+				const postServiceStartIndex = this.#status.presentation?.postServiceStartIndex ?? -1
+
+        if (itemIndex < warmupStartIndex) {
+          this.#status.servicePart = ServicePart.PreService
+        } else if (itemIndex < serviceStartIndex) {
+          this.#status.servicePart = ServicePart.Warmup
+        } else if (itemIndex < postServiceStartIndex) {
+          this.#status.servicePart = ServicePart.Service
+        } else {
+          this.#status.servicePart = ServicePart.PostService
+        }
       } else {
         this.#status.itemIndex = -1
         this.#status.itemTitle = ''
         this.#status.itemKind = null
         this.#status.itemSlideCount = 0
+        this.#status.servicePart = null
       }
     })
   }

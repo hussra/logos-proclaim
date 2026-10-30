@@ -72,3 +72,11 @@ export enum MediaState {
 	Stopped = '', // At least, that's my guess at what it means
 	// More to follow - pending availability of API docs
 }
+
+// Service Parts
+export enum ServicePart {
+	PreService = 'Pre Service',
+	Warmup = 'Warm Up',
+	Service = 'Service',
+	PostService = 'Post Service',
+}
