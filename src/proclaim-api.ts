@@ -388,6 +388,43 @@ export class ProclaimAPI {
 		}
 	}
 
+  // Send any app command to Proclaim
+	async sendAppCommand(command: string, index?: number): Promise<void> {
+		let url = `http://${this.#ip}:52195/appCommand/perform?appCommandName=${command}`
+		if (index !== undefined) {
+			url = `${url}&index=${index}`
+		}
+
+    console.log('Sending app command')
+
+		try {
+			const {statusCode, body} = await request(url, {
+				headers: {
+					'Content-Type': 'application/json',
+					...(this.authRequired && this.#status.authenticated ? { ProclaimAuthToken: this.#status.authToken } : {}),
+				},
+			})
+
+      const data = await body.text()
+
+      if (statusCode === 401 || statusCode === 403) {
+        console.log(`Proclaim authentication failed: ${statusCode} ${data}`)
+        this.#status.authenticated = false
+        this.#status.authToken = ''
+        return
+      } else if (statusCode !== 200) {
+        console.log(`Proclaim command failed: ${statusCode} ${data}`)
+        return
+      }
+
+			if (data !== 'success') {
+				console.log('debug', `Unexpected response from Proclaim: ${data}`)
+			}
+		} catch (error) {
+			console.log('warn', `Proclaim command failed: ${error}`)
+		}
+	}
+
   /**
    * On being destroyed, clear the on-air polling interval
    */
