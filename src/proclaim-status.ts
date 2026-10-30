@@ -12,6 +12,8 @@ export interface ProclaimStatusEvents {
   'authenticated': boolean
   'sessionId': string
   'presentation': Presentation | null
+  'itemCount': number
+  'songCount': number
   'presentationLocalRevision': number
   'step': number
   'itemId': string
@@ -39,11 +41,17 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   #authToken = ''
 
   #presentation: Presentation | null = null
+  #itemCount = 0
+  #songCount = 0
   #presentationLocalRevision = 0
   #step = 0
 
   #itemId = ''
   #slideIndex = 0
+  #itemIndex = -1
+  #itemTitle = ''
+  #itemKind: ServiceItemKind | null = null
+  #itemSlideCount = 0
   #quickScreenKind = QuickScreenKind.None
   #mediaState = MediaState.Playing
 
@@ -163,6 +171,34 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   }
 
   /**
+   * The number of service items in the presentation
+   */
+  get itemCount() {
+    return this.#itemCount
+  }
+
+  set itemCount(value: number) {
+    if (this.#itemCount !== value) {
+      this.#itemCount = value
+      this.emit('itemCount', value)
+    }
+  }
+
+  /**
+   * The number of song items in the presentation
+   */
+  get songCount() {
+    return this.#songCount
+  }
+
+  set songCount(value: number) {
+    if (this.#songCount !== value) {
+      this.#songCount = value
+      this.emit('songCount', value)
+    }
+  }
+
+  /**
    * The currently on-air presentation's local revison number - used to detect changes to the presentation while on air
    */
   get presentationLocalRevision() {
@@ -215,6 +251,50 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
     if (this.#slideIndex !== value) {
       this.#slideIndex = value
       this.emit('slideIndex', value)
+    }
+  }
+
+  get itemIndex() {
+    return this.#itemIndex
+  }
+
+  set itemIndex(value: number) {
+    if (this.#itemIndex !== value) {
+      this.#itemIndex = value
+      this.emit('itemIndex', value)
+    }
+  }
+  
+  get itemTitle() {
+    return this.#itemTitle
+  }
+
+  set itemTitle(value: string) {
+    if (this.#itemTitle !== value) {
+      this.#itemTitle = value
+      this.emit('itemTitle', value)
+    }
+  }
+
+  get itemKind(): ServiceItemKind | null {
+    return this.#itemKind
+  }
+
+  set itemKind(value: ServiceItemKind | null) {
+    if (this.#itemKind !== value) {
+      this.#itemKind = value
+      this.emit('itemKind', value)
+    }
+  }
+  
+  get itemSlideCount() {
+    return this.#itemSlideCount
+  }
+
+  set itemSlideCount(value: number) {
+    if (this.#itemSlideCount !== value) {
+      this.#itemSlideCount = value
+      this.emit('itemSlideCount', value)
     }
   }
 

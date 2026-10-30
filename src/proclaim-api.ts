@@ -1,6 +1,6 @@
 import { request, Agent, setGlobalDispatcher, errors } from 'undici'
 import { ProclaimStatus } from "./proclaim-status.js"
-import type { Presentation, PresentationStatus } from './proclaim-types.js'
+import { ServiceItemKind, type Presentation, type PresentationStatus } from './proclaim-types.js'
 import { sleep } from './util.js'
 
 setGlobalDispatcher(
@@ -76,6 +76,8 @@ export class ProclaimAPI {
         // Gone off air - clear presentation data
         this.#status.onAir = false
         this.#status.presentation = null
+        this.#status.itemCount = 0
+        this.#status.songCount = 0
       }
     })
 
@@ -191,7 +193,12 @@ export class ProclaimAPI {
 
       if (statusCode === 200) {
         // Return the actual presentation
-        this.#status.presentation = (await body.json()) as Presentation
+        const presentation = (await body.json()) as Presentation
+        this.#status.presentation = presentation
+        this.#status.itemCount = presentation.serviceItems.length
+        this.#status.songCount = presentation.serviceItems.filter((item) => item.kind === ServiceItemKind.SongLyrics).length
+
+        // TODO: If we already have a current itemId, we should recalculate itemIndex, itemTitle, itemKind, itemSlideCount, servicePart which may have changed
 
       } else if (statusCode === 404) {
         // Off air - clear session ID
@@ -248,7 +255,7 @@ export class ProclaimAPI {
         this.#status.presentationLocalRevision = status.presentationLocalRevision
 
         // Update other status properties
-        this.#status.itemId = status.status.itemId
+        this.#status.itemId = status.status.itemId // This will trigger recalculation of other item properties
         this.#status.slideIndex = status.status.slideIndex
         this.#status.quickScreenKind = status.status.quickScreenKind
         this.#status.mediaState = status.status.mediaState
