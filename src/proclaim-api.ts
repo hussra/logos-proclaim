@@ -28,6 +28,9 @@ export class ProclaimAPI {
     return this.#password
   }
 
+  /**
+   * Authentication is required for IPs other than 127.0.0.1
+   */
   private get authRequired() {
     return this.#ip !== '127.0.0.1'
   }
@@ -36,6 +39,10 @@ export class ProclaimAPI {
     return this.#status
   }
 
+  /**
+   * Config is valid if we have an IP address, and (unless IP is 127.0.0.1) we have a password specified
+   * @returns boolean
+   */
   private configIsValid() {
     if (!this.#ip || this.#ip.trim() === '') {
       return false
@@ -48,6 +55,11 @@ export class ProclaimAPI {
     return true
   }
 
+  /**
+   * Configure this ProclaimAPI instance
+   * @param ip IP address where Proclaim is running
+   * @param password Proclaim local remote password - required if ip is other than 127.0.0.1
+   */
   async configure(ip?: string, password?: string) {
     this.#ip = ip || '127.0.0.1'
     this.#password = password || ''
@@ -63,7 +75,9 @@ export class ProclaimAPI {
     await this.initOnAirPolling()
   }
 
-  // Internal event listeners for ProclaimStatus events
+  /** 
+   * Add internal event listeners for ProclaimStatus events
+   */ 
   private addEventListeners() {
     // When we get a new session ID, fetch the presentation data for that session and set the current step to 0
     this.#status.on('sessionId', async ({data}) => {
@@ -162,6 +176,9 @@ export class ProclaimAPI {
     }
   }
 
+  /**
+   * Initialise polling to check if Proclaim has gone on air - every 1 second
+   */
   private async initOnAirPolling() {
 		this.#pollInterval = setInterval(() => {
 			void this.onAirPoll()
@@ -169,6 +186,10 @@ export class ProclaimAPI {
 		void this.onAirPoll()
   }
 
+  /**
+   * Poll to see whether Proclaim has gone on air. If already on air, does nothing - going off
+   * air is detected by presentation status changes
+   */
   private async onAirPoll(): Promise<void> {
     // Only poll if we are off air - if we are on air, getPresentationStatus() will detect going off air
     if (this.#status.onAir) return
@@ -206,6 +227,9 @@ export class ProclaimAPI {
     }
   }
 
+  /**
+   * Load details of the on-air presentation
+   */
   private async loadPresentation() {
 		if (this.#status.sessionId.length === 0) {
 			console.error('debug', 'No sessionId available, cannot fetch presentation')
@@ -250,10 +274,13 @@ export class ProclaimAPI {
     }
 	}
 
+  /**
+   * Call /onair/statusChanged to get current presentation status, passing the current session ID, presentation
+   * local revision and step. If the details sent are all current, Proclaim will long-poll for up to a minute
+   * before responding.
+   */
   private async getPresentationStatus() {
-    // Call /onair/statusChanged to get current presentation status, passing the current session ID, presentation
-    // local revision and step. If the details sent are all current, Proclaim will long-poll for up to a minute
-    // before responding.
+
     const url = `http://${this.#ip}:52195/onair/statusChanged?localrevision=${this.#status.presentationLocalRevision}&step=${this.#status.step}`
     try {
       const {statusCode, body} = await request(url, {
@@ -316,6 +343,9 @@ export class ProclaimAPI {
     }
   }
 
+  /**
+   * On being destroyed, clear the on-air polling interval
+   */
   destroy(): void {
     if (this.#pollInterval !== undefined) {
       clearInterval(this.#pollInterval)

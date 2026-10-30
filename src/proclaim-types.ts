@@ -1,9 +1,14 @@
+/**
+ * Aspect ratio options
+ */
 export enum aspectRatio {
 	SixteenByNine = 'SixteenByNine',
 	FourByThree = 'FourByThree',
 }
 
-// Response from /presentations/onair endpoint
+/**
+ * A Proclaim presentation - response from /presentations/onair endpoint
+ */
 export interface Presentation {
 	sessionId: string // GUID, distinct from the on-air session ID returned from /onair/session
 	groupId: string // The group that the presentation belongs to
@@ -21,16 +26,20 @@ export interface Presentation {
 	serviceItems: ServiceItem[] // The service items within the presentation
 }
 
+/**
+ * Types of service items - there will be more to follow, I am sure, but awaiting documentation
+ */
 export enum ServiceItemKind {
 	Announcement = 'Announcement',
 	Content = 'Content',
 	StageDirectionCue = 'StageDirectionCue',
 	SongLyrics = 'SongLyrics',
 	Grouping = 'Grouping',
-	// More to follow - pending availability of API docs
 }
 
-// Items within a presentation
+/**
+ * An item within a presentation
+ */
 export interface ServiceItem {
 	id: string // GUID of the service item
 	title: string // Title of the service item
@@ -39,13 +48,17 @@ export interface ServiceItem {
 	slides: Slide[] // The individual slides within the service item
 }
 
-// Slides within a service item
+/**
+ * A slide within a service item
+ */
 export interface Slide {
 	localRevision: number // Timestamp of the last time the slide was modified
 	index: number // Slide index within the service item
 }
 
-// Presentation status returned from /onair/statusChanged endpoint
+/**
+ * Proclaim on-air presentation status - response from /onair/statusChanged endpoint
+ */
 export interface PresentationStatus {
 	presentationId: string // GUID
 	presentationLocalRevision: number // Timestamp of the last time the presentation was modified
@@ -58,6 +71,9 @@ export interface PresentationStatus {
 	}
 }
 
+/**
+ * Available Quick Screen types (at least, the ones that show up in PresentationStatus)
+ */
 export enum QuickScreenKind {
 	None = 'None',
 	NoText = 'NoText',
@@ -67,13 +83,17 @@ export enum QuickScreenKind {
 	OnScreenBible = 'OnScreenBible',
 }
 
+/**
+ * Media States - there may be more to follow, but awaiting documentation
+ */
 export enum MediaState {
 	Playing = 'Playing',
 	Stopped = '', // At least, that's my guess at what it means
-	// More to follow - pending availability of API docs
 }
 
-// Service Parts
+/**
+ * Parts of the service
+ */
 export enum ServicePart {
 	PreService = 'Pre Service',
 	Warmup = 'Warm Up',
