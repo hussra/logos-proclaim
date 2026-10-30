@@ -1,8 +1,16 @@
 /**
- * Proclaim authentication response from /appCommand/authenticate
+ * Proclaim app command API authentication response from /appCommand/authenticate
  */
-export interface ProclaimAuthResponse {
+export interface ProclaimAppCommandAPIAuthResponse {
 	proclaimAuthToken: string
+}
+
+/**
+ * Proclaim Local Wi-Fi API authentication response from /auth/control
+ */
+export interface ProclaimLocalWiFiAPIAuthResponse {
+  authenticationToken: string
+  connectionId: string
 }
 
 /**

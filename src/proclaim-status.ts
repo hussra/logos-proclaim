@@ -9,8 +9,9 @@ export interface ProclaimStatusEvents {
   'configured': boolean
   'configValid': boolean
   'connected': boolean
-  'authenticated': boolean
+  'appCommandAPIAuthenticated': boolean
   'sessionId': string
+  'localWiFiAPIAuthenticated': boolean
   'presentation': Presentation | null
   'itemCount': number
   'songCount': number
@@ -35,11 +36,14 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   #configured = false
   #configValid = false
   #connected = false
-  #authenticated = false
+  #appCommandAPIAuthenticated = false
   #onAir = false
 
   #sessionId = ''
   #appCommandAPIAuthToken = ''
+  #localWiFiAPIAuthenticated = false
+  #localWiFiAPIConnectionId = ''
+  #localWiFiAPIAuthToken = ''
 
   #presentation: Presentation | null = null
   #itemCount = 0
@@ -106,14 +110,14 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   /**
    * Is the ProclaimAPI object authenticated to the App Command API?
    */
-  get authenticated() {
-    return this.#authenticated
+  get appCommandAPIAuthenticated() {
+    return this.#appCommandAPIAuthenticated
   }
 
-  set authenticated(value: boolean) {
-    if (this.#authenticated !== value) {
-      this.#authenticated = value
-      this.emit('authenticated', value)
+  set appCommandAPIAuthenticated(value: boolean) {
+    if (this.#appCommandAPIAuthenticated !== value) {
+      this.#appCommandAPIAuthenticated = value
+      this.emit('appCommandAPIAuthenticated', value)
     }
   }
 
@@ -155,6 +159,43 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
   set appCommandAPIAuthToken(value: string) {
     if (this.#appCommandAPIAuthToken !== value) {
       this.#appCommandAPIAuthToken = value
+    }
+  }
+
+  get localWiFiAPIAuthenticated() {
+    return this.#localWiFiAPIAuthenticated
+  }
+
+  set localWiFiAPIAuthenticated(value: boolean) {
+    if (this.#localWiFiAPIAuthenticated !== value) {
+      this.#localWiFiAPIAuthenticated = value
+      this.emit('localWiFiAPIAuthenticated', value)
+    }
+  }
+
+  /**
+   * Connection ID for the local Wi-Fi API
+   */
+  get localWiFiAPIConnectionId() {
+    return this.#localWiFiAPIConnectionId
+  }
+
+  set localWiFiAPIConnectionId(value: string) {
+    if (this.#localWiFiAPIConnectionId !== value) {
+      this.#localWiFiAPIConnectionId = value
+    }
+  }
+
+  /**
+   * Auth token for the local Wi-Fi API
+   */
+  get localWifiAPIAuthToken() {
+    return this.#localWiFiAPIAuthToken
+  }
+
+  set localWifiAPIAuthToken(value: string) {
+    if (this.#localWiFiAPIAuthToken !== value) {
+      this.#localWiFiAPIAuthToken = value
     }
   }
 

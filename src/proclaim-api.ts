@@ -1,6 +1,6 @@
 import { request, Agent, setGlobalDispatcher, errors } from 'undici'
 import { ProclaimStatus } from "./proclaim-status.js"
-import { ServiceItemKind, ServicePart, type Presentation, type PresentationStatus, type ProclaimAuthResponse } from './proclaim-types.js'
+import { ServiceItemKind, ServicePart, type Presentation, type PresentationStatus, type ProclaimAppCommandAPIAuthResponse, type ProclaimLocalWiFiAPIAuthResponse } from './proclaim-types.js'
 import { sleep } from './util.js'
 
 setGlobalDispatcher(
@@ -82,7 +82,7 @@ export class ProclaimAPI {
     // When we get connected to Proclaim, get an auth token if required
     this.#status.on('connected', async ({data}) => {
       if (data && this.authRequired) {
-        await this.getAuthToken()
+        await this.getAppCommandAPIAuthToken()
       }
     })
 
@@ -93,6 +93,7 @@ export class ProclaimAPI {
         this.#status.onAir = true
         this.#status.step = 0
         await this.loadPresentation()
+        await this.getLocalWiFiRemoteAuthToken()
       } else {
         // Gone off air - clear presentation data
         this.#status.onAir = false
@@ -100,6 +101,9 @@ export class ProclaimAPI {
         this.#status.itemId = ''
         this.#status.itemCount = 0
         this.#status.songCount = 0
+        this.#status.localWiFiAPIAuthenticated = false
+        this.#status.localWifiAPIAuthToken = ''
+        this.#status.localWiFiAPIConnectionId = ''
       }
     })
 
@@ -350,7 +354,7 @@ export class ProclaimAPI {
     }
   }
 
-  private async getAuthToken(): Promise<void> {
+  private async getAppCommandAPIAuthToken(): Promise<void> {
     console.log('Getting auth token')
     const url = `http://${this.#ip}:52195/appCommand/authenticate`
     try {
@@ -367,24 +371,24 @@ export class ProclaimAPI {
       if (statusCode !== 200) {
         console.error(`Authentication error in getAuthToken()`)
         if (this.authRequired) {
-          this.#status.authenticated = false
+          this.#status.appCommandAPIAuthenticated = false
         }
       }
 
-      const data = (await body.json()) as ProclaimAuthResponse
+      const data = (await body.json()) as ProclaimAppCommandAPIAuthResponse
       this.#status.appCommandAPIAuthToken = data?.proclaimAuthToken
-      this.#status.authenticated = true
+      this.#status.appCommandAPIAuthenticated = true
     } catch (error) {
       console.error(`Authentication error in getAuthToken(): ${error}`)
       if (this.authRequired) {
-        this.#status.authenticated = false
+        this.#status.appCommandAPIAuthenticated = false
       }
     }
   }
 
   async reconnect(): Promise<void> {
 		if (this.authRequired) {
-			await this.getAuthToken()
+			await this.getAppCommandAPIAuthToken()
 		}
 	}
 
@@ -401,7 +405,7 @@ export class ProclaimAPI {
 			const {statusCode, body} = await request(url, {
 				headers: {
 					'Content-Type': 'application/json',
-					...(this.authRequired && this.#status.authenticated ? { ProclaimAuthToken: this.#status.appCommandAPIAuthToken } : {}),
+					...(this.authRequired && this.#status.appCommandAPIAuthenticated ? { ProclaimAuthToken: this.#status.appCommandAPIAuthToken } : {}),
 				},
 			})
 
@@ -409,7 +413,7 @@ export class ProclaimAPI {
 
       if (statusCode === 401 || statusCode === 403) {
         console.log(`Proclaim authentication failed: ${statusCode} ${data}`)
-        this.#status.authenticated = false
+        this.#status.appCommandAPIAuthenticated = false
         this.#status.appCommandAPIAuthToken = ''
         return
       } else if (statusCode !== 200) {
@@ -424,6 +428,45 @@ export class ProclaimAPI {
 			console.log('warn', `Proclaim command failed: ${error}`)
 		}
 	}
+
+  private async getLocalWiFiRemoteAuthToken() {
+    console.log('Well hello')
+
+    const url = `http://${this.#ip}:52195/auth/control`
+    try {
+      const {statusCode, body} = await request(url, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'OnAirSessionId': this.#status.sessionId
+        },
+        body: JSON.stringify({
+          FaithlifeUserId: null,
+          UserName: null,
+          RemoteDeviceName: 'companion-module-logos-proclaim',
+          Password: 'Proclaim'
+        })
+      })
+
+      if (statusCode !== 200) {
+        console.log(`Unable to authenticate to Local Wi-Fi API`)
+        this.#status.localWiFiAPIAuthenticated = false
+        this.#status.localWifiAPIAuthToken = ''
+        this.#status.localWiFiAPIConnectionId = ''
+      }
+
+      const data = await body.json() as ProclaimLocalWiFiAPIAuthResponse
+      this.#status.localWiFiAPIAuthenticated = true
+      this.#status.localWifiAPIAuthToken = data.authenticationToken
+      this.#status.localWiFiAPIConnectionId = data.connectionId
+      
+    } catch (error) {
+      console.log('warn', `Error taking Local Wi-Fi control: ${error}`)
+      this.#status.localWiFiAPIAuthenticated = false
+      this.#status.localWifiAPIAuthToken = ''
+      this.#status.localWiFiAPIConnectionId = ''
+    }
+  }
 
   /**
    * On being destroyed, clear the on-air polling interval
