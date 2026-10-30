@@ -31,7 +31,7 @@ export class ProclaimAPI {
   /**
    * Authentication is required for IPs other than 127.0.0.1
    */
-  private get authRequired() {
+  get authRequired() {
     return this.#ip !== '127.0.0.1'
   }
 
