@@ -89,6 +89,13 @@ export class ProclaimAPI {
         return
       }
       this.#status.presentationLocalRevision = data.localRevision
+      this.#status.itemCount = data.serviceItems.length
+      this.#status.songCount = data.serviceItems.filter((item) => item.kind === ServiceItemKind.SongLyrics).length
+
+      // If we already have a current itemId, we should recalculate status properties that depend on it
+      if (this.#status.itemId && this.#status.itemId !== '') {
+        this.#status.emit('itemId', this.#status.itemId)
+      }
 
       // If we don't already have a #statusPromise, create another (after a short pause)
       if (!this.#statusPromise) {
@@ -211,10 +218,6 @@ export class ProclaimAPI {
         // Return the actual presentation
         const presentation = (await body.json()) as Presentation
         this.#status.presentation = presentation
-        this.#status.itemCount = presentation.serviceItems.length
-        this.#status.songCount = presentation.serviceItems.filter((item) => item.kind === ServiceItemKind.SongLyrics).length
-
-        // TODO: If we already have a current itemId, we should recalculate itemIndex, itemTitle, itemKind, itemSlideCount, servicePart which may have changed
 
       } else if (statusCode === 404) {
         // Off air - clear session ID
