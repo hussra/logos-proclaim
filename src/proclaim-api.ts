@@ -3,12 +3,16 @@ import { ProclaimStatus } from "./proclaim-status.js"
 import { ServiceItemKind, ServicePart, type Presentation, type PresentationStatus, type ProclaimAppCommandAPIAuthResponse, type ProclaimLocalWiFiAPIAuthResponse } from './proclaim-types.js'
 import { sleep } from './util.js'
 
+// Reduce the connect timeout for UnDici connections
 setGlobalDispatcher(
   new Agent({
     connectTimeout: 500,
   })
 )
 
+/**
+ * Encapsulate the Proclaim API connections
+ */
 export class ProclaimAPI {
 
   #ip?: string
@@ -20,10 +24,16 @@ export class ProclaimAPI {
 
   #status: ProclaimStatus = new ProclaimStatus()
 
+  /**
+   * The IP address of the computer where Proclaim is running
+   */
   get ip() {
     return this.#ip
   }
 
+  /**
+   * The password to use to connection to the App Command API
+   */
   get password() {
     return this.#password
   }
@@ -35,6 +45,9 @@ export class ProclaimAPI {
     return this.#ip !== '127.0.0.1'
   }
 
+  /**
+   * The status object representing the current state of the API connection and any on-air presentation
+   */
   get status(): ProclaimStatus {
     return this.#status
   }
@@ -57,8 +70,8 @@ export class ProclaimAPI {
 
   /**
    * Configure this ProclaimAPI instance
-   * @param ip IP address where Proclaim is running
-   * @param password Proclaim local remote password - required if ip is other than 127.0.0.1
+   * @param ip - IP address where Proclaim is running
+   * @param password - Proclaim local remote password - required if ip is other than 127.0.0.1
    */
   async configure(ip?: string, password?: string) {
     this.#ip = ip || '127.0.0.1'
@@ -76,9 +89,11 @@ export class ProclaimAPI {
   }
 
   /** 
-   * Add internal event listeners for ProclaimStatus events
+   * Add internal event listeners for ProclaimStatus events - these listeners respond
+   * to our own state changes triggering further internal actions
    */ 
   private addEventListeners() {
+
     // When we get connected to Proclaim, get an auth token if required
     this.#status.on('connected', async ({data}) => {
       if (data && this.authRequired) {
@@ -86,7 +101,8 @@ export class ProclaimAPI {
       }
     })
 
-    // When we get a new session ID, fetch the presentation data for that session and set the current step to 0
+    // When we get a new session ID set on-air status, set the current step to 0, fetch the
+    // presentation data, and get an auth token for the Local Wi-Fi API
     this.#status.on('sessionId', async ({data}) => {
       if (data !== '') {
         // Gone on air - set step to 0 and load presentation data
@@ -148,12 +164,13 @@ export class ProclaimAPI {
 
       this.setItemProperties(data)
     })
+
   }
 
   /**
    * Calculate status properties that depend on the currently live service item:
    * itemIndex, itemTitle, itemKind, itemSlideCount, servicePart
-   * @param data ID of live service item
+   * @param data - ID of live service item
    */
   private setItemProperties(data: string) {
     const itemIndex = this.#status.presentation?.serviceItems.findIndex((item) => item.id === data) ?? -1
@@ -403,7 +420,7 @@ export class ProclaimAPI {
    * Send any App Command to Proclaim
    * @param command - The App Command to send: see documentation at
    *   https://support.proclaim.logos.com/hc/en-us/articles/19864456647053-Proclaim-App-Command-API
-   * @param index For certain App Commands (annotated with an * at the API reference), the index to use (1-254)
+   * @param index - For certain App Commands (annotated with an * at the API reference), the index to use (1-254)
    *   e.g. service item number, slide number, verse number etc.
    * @returns Whether the command was sent successfully
    */
@@ -486,8 +503,8 @@ export class ProclaimAPI {
 
   /**
    * Jump to a specific service item by ID, and optionally a specific slide number
-   * @param itemId The ID of the service item to jump to
-   * @param slideIndex The slide number to jump to within that service item (0-based)
+   * @param itemId - ID of the service item to jump to
+   * @param slideIndex - slide number to jump to within that service item (0-based)
    * @returns Whether the command was sent successfully
    */
   async goToServiceItemAndSlide(itemId: string, slideIndex = 0): Promise<boolean> {
