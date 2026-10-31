@@ -16,7 +16,7 @@ export interface ProclaimLocalWiFiAPIAuthResponse {
 /**
  * Aspect ratio options
  */
-export enum aspectRatio {
+export enum AspectRatio {
 	SixteenByNine = 'SixteenByNine',
 	FourByThree = 'FourByThree',
 }
@@ -34,7 +34,7 @@ export interface Presentation {
 	logoServiceItemId: string
 	dateGiven: number // The service date, but not time of day
 	startTime: number // When the presentation went on-air, *not* the scheduled start time!
-	aspectRatio: aspectRatio // The aspect ratio of the presentation
+	aspectRatio: AspectRatio // The aspect ratio of the presentation
 	warmupStartIndex: number // Index of the first service item in the warmup service section
 	serviceStartIndex: number // Index of the first service item in the service section
 	postServiceStartIndex: number // Index of the first service item in the post-service section
