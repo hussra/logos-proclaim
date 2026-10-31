@@ -483,6 +483,45 @@ export class ProclaimAPI {
   }
 
   /**
+   * Jump to a specific service item by ID, and optionally a specific slide number
+   * @param itemId The ID of the service item to jump to
+   * @param slideIndex The slide number to jump to within that service item (0-based)
+   */
+  async goToServiceItemAndSlide(itemId: string, slideIndex = 0) {
+    const url = `http://${this.#ip}:52195/onair/statusChanged`
+
+    try {
+      const {statusCode, body} = await request(url, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'OnAirSessionId': this.#status.sessionId,
+          'ProclaimAuthToken': this.#status.localWifiAPIAuthToken
+        },
+        body: JSON.stringify({
+          'PresentationId': this.#status.presentation?.id,
+          'PresentationLocalRevision': this.#status.presentationLocalRevision,
+          'Status': {
+            'Revision': this.#status.step,
+            'ItemId': itemId,
+            'SlideIndex': slideIndex,
+            'QuickScreen': '',
+            'QuickScreenData': '',
+            'QuickScreenKind': 'None',
+            'MediaState': this.#status.mediaState
+          }
+        })
+      })
+
+      if (statusCode !== 200) {
+        console.log('debug', `Unexpected response from Proclaim: ${statusCode} ${body.text()}`)
+			}
+		} catch (error) {
+			console.log('warn', `Proclaim command failed: ${error}`)
+		}
+  }
+
+  /**
    * On being destroyed, clear the on-air polling interval
    */
   destroy(): void {
