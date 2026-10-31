@@ -354,6 +354,9 @@ export class ProclaimAPI {
     }
   }
 
+  /**
+   * Get an auth token for the App Command API
+   */
   private async getAppCommandAPIAuthToken(): Promise<void> {
     console.log('Getting auth token')
     const url = `http://${this.#ip}:52195/appCommand/authenticate`
@@ -386,13 +389,23 @@ export class ProclaimAPI {
     }
   }
 
+  /**
+   * Refresh auth tokens for App Command and Local Wi-Fi APIs
+   */
   async reconnect(): Promise<void> {
 		if (this.authRequired) {
 			await this.getAppCommandAPIAuthToken()
 		}
+    await this.getLocalWiFiRemoteAuthToken()
 	}
 
-  // Send any app command to Proclaim
+  /**
+   * Send any App Command to Proclaim
+   * @param command The App Command to send - see documentation at
+   *   https://support.proclaim.logos.com/hc/en-us/articles/19864456647053-Proclaim-App-Command-API
+   * @param index For certain App Commands (annotated with an * at the API reference), the index to use (1-254)
+   *   e.g. service item number, slide number, verse number etc.
+   */
 	async sendAppCommand(command: string, index?: number): Promise<void> {
 		let url = `http://${this.#ip}:52195/appCommand/perform?appCommandName=${command}`
 		if (index !== undefined) {
@@ -429,6 +442,9 @@ export class ProclaimAPI {
 		}
 	}
 
+  /**
+   * Get an auth token for the Local Wi-Fi API
+   */
   private async getLocalWiFiRemoteAuthToken() {
     const url = `http://${this.#ip}:52195/auth/control`
     try {
