@@ -1,7 +1,6 @@
 import { request, Agent, setGlobalDispatcher, errors } from 'undici'
 import { ProclaimStatus } from "./proclaim-status.js"
 import { ServiceItemKind, ServicePart, type Presentation, type PresentationStatus, type ProclaimAppCommandAPIAuthResponse, type ProclaimLocalWiFiAPIAuthResponse } from './proclaim-types.js'
-import { sleep } from './util.js'
 
 // Reduce the connect timeout for UnDici connections
 setGlobalDispatcher(
@@ -140,7 +139,7 @@ export class ProclaimAPI {
 
       // If we don't already have a #statusPromise, create another (after a short pause)
       if (!this.#statusPromise) {
-        await sleep(1000)
+        await this.sleep(1000)
         this.#statusPromise = this.getPresentationStatus()
       }
     })
@@ -328,7 +327,7 @@ export class ProclaimAPI {
         if (status === null) {
           console.error('/onair/statusChanged returned no data, will back off and try again')
 
-          await sleep(1000)
+          await this.sleep(1000)
           this.#statusPromise = this.getPresentationStatus()
           return
         }
@@ -559,4 +558,15 @@ export class ProclaimAPI {
       clearInterval(this.#pollInterval)
     }
   }
+
+  /**
+   * Sleep
+   * @param ms - number of milliseconds to sleep
+   * @returns Promise that will resolve after the specified time
+   */
+  private sleep(ms: number): Promise<void> {
+    console.log(`Sleeping for ${ms}ms`)
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
 }
