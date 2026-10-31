@@ -401,18 +401,17 @@ export class ProclaimAPI {
 
   /**
    * Send any App Command to Proclaim
-   * @param command The App Command to send - see documentation at
+   * @param command - The App Command to send: see documentation at
    *   https://support.proclaim.logos.com/hc/en-us/articles/19864456647053-Proclaim-App-Command-API
    * @param index For certain App Commands (annotated with an * at the API reference), the index to use (1-254)
    *   e.g. service item number, slide number, verse number etc.
+   * @returns Whether the command was sent successfully
    */
-	async sendAppCommand(command: string, index?: number): Promise<void> {
+	async sendAppCommand(command: string, index?: number): Promise<boolean> {
 		let url = `http://${this.#ip}:52195/appCommand/perform?appCommandName=${command}`
 		if (index !== undefined) {
 			url = `${url}&index=${index}`
 		}
-
-    console.log('Sending app command')
 
 		try {
 			const {statusCode, body} = await request(url, {
@@ -428,18 +427,21 @@ export class ProclaimAPI {
         console.log(`Proclaim authentication failed: ${statusCode} ${data}`)
         this.#status.appCommandAPIAuthenticated = false
         this.#status.appCommandAPIAuthToken = ''
-        return
+        return false
       } else if (statusCode !== 200) {
         console.log(`Proclaim command failed: ${statusCode} ${data}`)
-        return
+        return false
       }
 
 			if (data !== 'success') {
 				console.log('debug', `Unexpected response from Proclaim: ${data}`)
+        return false
 			}
 		} catch (error) {
 			console.log('warn', `Proclaim command failed: ${error}`)
+      return false
 		}
+    return true
 	}
 
   /**
@@ -486,8 +488,9 @@ export class ProclaimAPI {
    * Jump to a specific service item by ID, and optionally a specific slide number
    * @param itemId The ID of the service item to jump to
    * @param slideIndex The slide number to jump to within that service item (0-based)
+   * @returns Whether the command was sent successfully
    */
-  async goToServiceItemAndSlide(itemId: string, slideIndex = 0) {
+  async goToServiceItemAndSlide(itemId: string, slideIndex = 0): Promise<boolean> {
     const url = `http://${this.#ip}:52195/onair/statusChanged`
 
     try {
@@ -513,12 +516,22 @@ export class ProclaimAPI {
         })
       })
 
+      if (statusCode === 401 || statusCode === 403) {
+        console.log(`Proclaim authentication failed: ${statusCode} ${body.text()}`)
+        this.#status.localWiFiAPIAuthenticated = false
+        this.#status.localWifiAPIAuthToken = ''
+        this.#status.localWiFiAPIConnectionId = ''
+        return false
+      }
       if (statusCode !== 200) {
         console.log('debug', `Unexpected response from Proclaim: ${statusCode} ${body.text()}`)
+        return false
 			}
 		} catch (error) {
 			console.log('warn', `Proclaim command failed: ${error}`)
+      return false
 		}
+    return true
   }
 
   /**
