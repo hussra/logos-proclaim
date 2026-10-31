@@ -246,7 +246,7 @@ export class ProclaimAPI {
       // Some unexpected error - set disconnected, clear session ID
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
-        console.error('Error polling onAir session:', error)
+        console.error(`Error polling onAir session: ${error}`)
       }
 
       this.#status.connected = false
@@ -259,7 +259,7 @@ export class ProclaimAPI {
    */
   private async loadPresentation() {
 		if (this.#status.sessionId.length === 0) {
-			console.error('debug', 'No sessionId available, cannot fetch presentation')
+			console.error(`No sessionId available, cannot fetch presentation`)
 			return null
 		}
 
@@ -293,7 +293,7 @@ export class ProclaimAPI {
       // Some unexpected error - set disconnected, & clear session ID
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
-        console.error('Connection refused retrieving presentation data:', error)
+        console.error(`Connection refused retrieving presentation data: ${error}`)
       }
 
       this.#status.connected = false
@@ -325,7 +325,7 @@ export class ProclaimAPI {
         // Sometimes we seem to get a 200 status but an empty body.
         // If so, try again.
         if (status === null) {
-          console.error('/onair/statusChanged returned no data, will back off and try again')
+          console.error(`/onair/statusChanged returned no data, will back off and try again`)
 
           await this.sleep(1000)
           this.#statusPromise = this.getPresentationStatus()
@@ -361,7 +361,7 @@ export class ProclaimAPI {
       // Some unexpected error - set disconnected, clear session ID, clear status promise
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
-        console.error('Connection refused retrieving presentation status:', error)
+        console.error('Connection refused retrieving presentation status: ${error}')
       }
 
       this.#status.connected = false
@@ -374,7 +374,6 @@ export class ProclaimAPI {
    * Get an auth token for the App Command API
    */
   private async getAppCommandAPIAuthToken(): Promise<void> {
-    console.log('Getting auth token')
     const url = `http://${this.#ip}:52195/appCommand/authenticate`
     try {
       const {statusCode, body} = await request(url, {
@@ -440,21 +439,21 @@ export class ProclaimAPI {
       const data = await body.text()
 
       if (statusCode === 401 || statusCode === 403) {
-        console.log(`Proclaim authentication failed: ${statusCode} ${data}`)
+        console.error(`Proclaim authentication failed: ${statusCode} ${data}`)
         this.#status.appCommandAPIAuthenticated = false
         this.#status.appCommandAPIAuthToken = ''
         return false
       } else if (statusCode !== 200) {
-        console.log(`Proclaim command failed: ${statusCode} ${data}`)
+        console.error(`Proclaim command failed: ${statusCode} ${data}`)
         return false
       }
 
 			if (data !== 'success') {
-				console.log('debug', `Unexpected response from Proclaim: ${data}`)
+				console.error(`Unexpected response from Proclaim: ${data}`)
         return false
 			}
 		} catch (error) {
-			console.log('warn', `Proclaim command failed: ${error}`)
+			console.error(`Proclaim command failed: ${error}`)
       return false
 		}
     return true
@@ -481,7 +480,7 @@ export class ProclaimAPI {
       })
 
       if (statusCode !== 200) {
-        console.log(`Unable to authenticate to Local Wi-Fi API`)
+        console.error(`Unable to authenticate to Local Wi-Fi API`)
         this.#status.localWiFiAPIAuthenticated = false
         this.#status.localWifiAPIAuthToken = ''
         this.#status.localWiFiAPIConnectionId = ''
@@ -493,7 +492,7 @@ export class ProclaimAPI {
       this.#status.localWiFiAPIConnectionId = data.connectionId
       
     } catch (error) {
-      console.log('warn', `Error taking Local Wi-Fi control: ${error}`)
+      console.error(`Error taking Local Wi-Fi control: ${error}`)
       this.#status.localWiFiAPIAuthenticated = false
       this.#status.localWifiAPIAuthToken = ''
       this.#status.localWiFiAPIConnectionId = ''
@@ -533,18 +532,18 @@ export class ProclaimAPI {
       })
 
       if (statusCode === 401 || statusCode === 403) {
-        console.log(`Proclaim authentication failed: ${statusCode} ${body.text()}`)
+        console.error(`Proclaim authentication failed: ${statusCode} ${body.text()}`)
         this.#status.localWiFiAPIAuthenticated = false
         this.#status.localWifiAPIAuthToken = ''
         this.#status.localWiFiAPIConnectionId = ''
         return false
       }
       if (statusCode !== 200) {
-        console.log('debug', `Unexpected response from Proclaim: ${statusCode} ${body.text()}`)
+        console.error(`Unexpected response from Proclaim: ${statusCode} ${body.text()}`)
         return false
 			}
 		} catch (error) {
-			console.log('warn', `Proclaim command failed: ${error}`)
+			console.error(`Proclaim command failed: ${error}`)
       return false
 		}
     return true
@@ -565,7 +564,6 @@ export class ProclaimAPI {
    * @returns Promise that will resolve after the specified time
    */
   private sleep(ms: number): Promise<void> {
-    console.log(`Sleeping for ${ms}ms`)
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
