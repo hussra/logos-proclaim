@@ -1,5 +1,5 @@
 import { request, Agent, setGlobalDispatcher, errors } from 'undici'
-import { ProclaimStatus } from './proclaim-status.js'
+import { LogLevel, ProclaimStatus } from './proclaim-status.js'
 import { ServiceItemKind, ServicePart, type Presentation, type PresentationStatus, type ProclaimAppCommandAPIAuthResponse, type ProclaimLocalWiFiAPIAuthResponse } from './proclaim-types.js'
 
 export * from './proclaim-types.js'
@@ -76,6 +76,7 @@ export class ProclaimAPI {
    * @param password - Proclaim local remote password - required if ip is other than 127.0.0.1
    */
   async configure(ip?: string, password?: string) {
+    this.#status.emit('log', { level: LogLevel.Info, message: `Configuring Proclaim API with IP ${ip} and password ${password ? '***' : '(none)'}` })
     this.#ip = ip || '127.0.0.1'
     this.#password = password || ''
 
@@ -249,7 +250,7 @@ export class ProclaimAPI {
       // Some unexpected error - set disconnected, clear session ID
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
-        console.error(`Error polling onAir session: ${error}`)
+        this.#status.emit('log', { level: LogLevel.Error, message: `Error polling onAir session`, error: error as Error })
       }
 
       this.#status.connected = false
@@ -262,7 +263,7 @@ export class ProclaimAPI {
    */
   private async loadPresentation() {
 		if (this.#status.sessionId.length === 0) {
-			console.error(`No sessionId available, cannot fetch presentation`)
+      this.#status.emit('log', { level: LogLevel.Error, message: `No sessionId available, cannot fetch presentation`})
 			return null
 		}
 
@@ -296,7 +297,7 @@ export class ProclaimAPI {
       // Some unexpected error - set disconnected, & clear session ID
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
-        console.error(`Connection refused retrieving presentation data: ${error}`)
+        this.#status.emit('log', { level: LogLevel.Error, message: `Error retrieving presentation data`, error: error as Error })
       }
 
       this.#status.connected = false
@@ -328,7 +329,7 @@ export class ProclaimAPI {
         // Sometimes we seem to get a 200 status but an empty body.
         // If so, try again.
         if (status === null) {
-          console.error(`/onair/statusChanged returned no data, will back off and try again`)
+          this.#status.emit('log', { level: LogLevel.Warn, message: `/onair/statusChanged returned no data, will back off and try again`})
 
           await this.sleep(1000)
           this.#statusPromise = this.getPresentationStatus()
@@ -364,7 +365,7 @@ export class ProclaimAPI {
       // Some unexpected error - set disconnected, clear session ID, clear status promise
       const undiciError = error as errors.UndiciError
       if ((undiciError.code !== 'ECONNREFUSED') && (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT')) {
-        console.error('Connection refused retrieving presentation status: ${error}')
+        this.#status.emit('log', { level: LogLevel.Error, message: `Connection refused retrieving presentation status`, error: error as Error })
       }
 
       this.#status.connected = false
@@ -390,7 +391,7 @@ export class ProclaimAPI {
       })
 
       if (statusCode !== 200) {
-        console.error(`Authentication error in getAuthToken()`)
+        this.#status.emit('log', { level: LogLevel.Error, message: `Authentication error in getAuthToken(): ${statusCode}` })
         if (this.authRequired) {
           this.#status.appCommandAPIAuthenticated = false
         }
@@ -400,7 +401,7 @@ export class ProclaimAPI {
       this.#status.appCommandAPIAuthToken = data?.proclaimAuthToken
       this.#status.appCommandAPIAuthenticated = true
     } catch (error) {
-      console.error(`Authentication error in getAuthToken(): ${error}`)
+      this.#status.emit('log', { level: LogLevel.Error, message: `Authentication error in getAuthToken()`, error: error as Error })
       if (this.authRequired) {
         this.#status.appCommandAPIAuthenticated = false
       }
@@ -426,6 +427,7 @@ export class ProclaimAPI {
    * @returns Whether the command was sent successfully
    */
 	async sendAppCommand(command: string, index?: number): Promise<boolean> {
+    this.#status.emit('log', { level: LogLevel.Info, message: `Sending App Command ${command}${index !== undefined ? ` with index ${index}` : ''}` })
 		let url = `http://${this.#ip}:52195/appCommand/perform?appCommandName=${command}`
 		if (index !== undefined) {
 			url = `${url}&index=${index}`
@@ -442,21 +444,21 @@ export class ProclaimAPI {
       const data = await body.text()
 
       if (statusCode === 401 || statusCode === 403) {
-        console.error(`Proclaim authentication failed: ${statusCode} ${data}`)
+        this.#status.emit('log', { level: LogLevel.Error, message: `Proclaim authentication failed: ${statusCode} ${data}` })
         this.#status.appCommandAPIAuthenticated = false
         this.#status.appCommandAPIAuthToken = ''
         return false
       } else if (statusCode !== 200) {
-        console.error(`Proclaim command failed: ${statusCode} ${data}`)
+        this.#status.emit('log', { level: LogLevel.Error, message: `Proclaim command failed: ${statusCode} ${data}` })
         return false
       }
 
 			if (data !== 'success') {
-				console.error(`Unexpected response from Proclaim: ${data}`)
+				this.#status.emit('log', { level: LogLevel.Error, message: `Unexpected response from Proclaim: ${data}` })
         return false
 			}
 		} catch (error) {
-			console.error(`Proclaim command failed: ${error}`)
+			this.#status.emit('log', { level: LogLevel.Error, message: `Proclaim command failed`, error: error as Error })
       return false
 		}
     return true
@@ -483,7 +485,7 @@ export class ProclaimAPI {
       })
 
       if (statusCode !== 200) {
-        console.error(`Unable to authenticate to Local Wi-Fi API`)
+        this.#status.emit('log', { level: LogLevel.Error, message: `Unable to authenticate to Local Wi-Fi API: ${statusCode}` })
         this.#status.localWiFiAPIAuthenticated = false
         this.#status.localWifiAPIAuthToken = ''
         this.#status.localWiFiAPIConnectionId = ''
@@ -495,7 +497,7 @@ export class ProclaimAPI {
       this.#status.localWiFiAPIConnectionId = data.connectionId
       
     } catch (error) {
-      console.error(`Error taking Local Wi-Fi control: ${error}`)
+      this.#status.emit('log', { level: LogLevel.Error, message: `Error taking Local Wi-Fi control`, error: error as Error })
       this.#status.localWiFiAPIAuthenticated = false
       this.#status.localWifiAPIAuthToken = ''
       this.#status.localWiFiAPIConnectionId = ''
@@ -509,6 +511,7 @@ export class ProclaimAPI {
    * @returns Whether the command was sent successfully
    */
   async goToServiceItemAndSlide(itemId: string, slideIndex = 0): Promise<boolean> {
+    this.#status.emit('log', { level: LogLevel.Info, message: `Jumping to service item ${itemId} and slide ${slideIndex}` })
     const url = `http://${this.#ip}:52195/onair/statusChanged`
 
     try {
@@ -535,18 +538,18 @@ export class ProclaimAPI {
       })
 
       if (statusCode === 401 || statusCode === 403) {
-        console.error(`Proclaim authentication failed: ${statusCode} ${body.text()}`)
+        this.#status.emit('log', { level: LogLevel.Error, message: `Proclaim authentication failed: ${statusCode} ${body.text()}` })
         this.#status.localWiFiAPIAuthenticated = false
         this.#status.localWifiAPIAuthToken = ''
         this.#status.localWiFiAPIConnectionId = ''
         return false
       }
       if (statusCode !== 200) {
-        console.error(`Unexpected response from Proclaim: ${statusCode} ${body.text()}`)
+        this.#status.emit('log', { level: LogLevel.Error, message: `Unexpected response from Proclaim: ${statusCode} ${body.text()}` })
         return false
 			}
 		} catch (error) {
-			console.error(`Proclaim command failed: ${error}`)
+			this.#status.emit('log', { level: LogLevel.Error, message: `Proclaim command failed`, error: error as Error })
       return false
 		}
     return true

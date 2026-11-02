@@ -1,6 +1,13 @@
 import Emittery from 'emittery'
 import { MediaState, QuickScreenKind, ServiceItemKind, ServicePart, type Presentation } from './proclaim-types.js'
 
+export enum LogLevel {
+  Debug = 'DEBUG',
+  Info = 'INFO',
+  Warn = 'WARN',
+  Error = 'ERROR'
+}
+
 /**
  * Event types for the ProclaimStatus object - emitted when the corresponding properties change
  */
@@ -26,6 +33,7 @@ export interface ProclaimStatusEvents {
   'quickScreenKind': QuickScreenKind
   'mediaState': MediaState
   'servicePart': ServicePart | null
+  'log': { level: LogLevel, message: string, error?: Error }
 }
 
 /**
