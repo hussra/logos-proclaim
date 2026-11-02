@@ -1,6 +1,9 @@
 import { request, Agent, setGlobalDispatcher, errors } from 'undici'
-import { ProclaimStatus } from "./proclaim-status.js"
+import { ProclaimStatus } from './proclaim-status.js'
 import { ServiceItemKind, ServicePart, type Presentation, type PresentationStatus, type ProclaimAppCommandAPIAuthResponse, type ProclaimLocalWiFiAPIAuthResponse } from './proclaim-types.js'
+
+export * from './proclaim-types.js'
+export * from './proclaim-status.js'
 
 // Reduce the connect timeout for UnDici connections
 setGlobalDispatcher(
