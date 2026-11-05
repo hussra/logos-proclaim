@@ -252,12 +252,12 @@ export class ProclaimAPI {
 
       // Don't bother logging connection refused errors, connect timeout errors, or host down/unreachable errors.
       // These are expected if Proclaim is not running.
-      // if ((undiciError.code !== 'ECONNREFUSED') &&
-      //     (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT') &&
-      //     (undiciError.code !== 'EHOSTDOWN') &&
-      //     (undiciError.code !== 'EHOSTUNREACH')) {
+      if ((undiciError.code !== 'ECONNREFUSED') &&
+          (undiciError.code !== 'UND_ERR_CONNECT_TIMEOUT') &&
+          (undiciError.code !== 'EHOSTDOWN') &&
+          (undiciError.code !== 'EHOSTUNREACH')) {
         this.#status.emit('log', { level: LogLevel.ERROR, message: `Error polling onAir session`, error: error as Error })
-      // }
+      }
 
       // Set disconnected, clear session ID
       this.#status.connected = false
