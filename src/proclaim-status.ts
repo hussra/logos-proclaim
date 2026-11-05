@@ -2,10 +2,10 @@ import Emittery from 'emittery'
 import { MediaState, QuickScreenKind, ServiceItemKind, ServicePart, type Presentation } from './proclaim-types.js'
 
 export enum LogLevel {
-  Debug = 'DEBUG',
-  Info = 'INFO',
-  Warn = 'WARN',
-  Error = 'ERROR'
+  DEBUG,
+  INFO,
+  WARN,
+  ERROR
 }
 
 /**
