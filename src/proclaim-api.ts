@@ -1,6 +1,6 @@
 import { request, Agent, setGlobalDispatcher, errors } from 'undici'
 import { LogLevel, ProclaimStatus } from './proclaim-status.js'
-import { ServiceItemKind, ServicePart, type Presentation, type PresentationStatus, type ProclaimAppCommandAPIAuthResponse, type ProclaimLocalWiFiAPIAuthResponse } from './proclaim-types.js'
+import { IndexedAppCommand, ServiceItemKind, ServicePart, SimpleAppCommand, type Presentation, type PresentationStatus, type ProclaimAppCommandAPIAuthResponse, type ProclaimLocalWiFiAPIAuthResponse } from './proclaim-types.js'
 
 export * from './proclaim-types.js'
 export * from './proclaim-status.js'
@@ -433,7 +433,10 @@ export class ProclaimAPI {
    *   e.g. service item number, slide number, verse number etc.
    * @returns Whether the command was sent successfully
    */
-	async sendAppCommand(command: string, index?: number): Promise<boolean> {
+	async sendAppCommand(cmd: { command: SimpleAppCommand } | { command: IndexedAppCommand, index: number }): Promise<boolean> {
+    const command = cmd.command
+    const index = 'index' in cmd ? cmd.index : undefined
+
     this.#status.emit('log', { level: LogLevel.INFO, message: `Sending App Command ${command}${index !== undefined ? ` with index ${index}` : ''}` })
 		let url = `http://${this.#ip}:52195/appCommand/perform?appCommandName=${command}`
 		if (index !== undefined) {

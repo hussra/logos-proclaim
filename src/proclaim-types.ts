@@ -115,3 +115,65 @@ export enum ServicePart {
 	Service = 'Service',
 	PostService = 'Post Service',
 }
+
+export enum SimpleAppCommand {
+	// Slides
+	NextSlide = 'NextSlide',
+	PreviousSlide = 'PreviousSlide',
+	NextServiceItem = 'NextServiceItem',
+	PreviousServiceItem = 	'PreviousServiceItem',
+
+	// Service Parts
+	StartPreService = 'StartPreService',
+	StartWarmUp = 'StartWarmUp',
+	StartService = 'StartService',
+	StartPostService = 'StartPostService',
+
+	// Media
+	NextAudioItem = 'NextAudioItem',
+	PreviousAudioItem = 'PreviousPreviousAudioItem', // sic
+	VideoRestart = 'VideoRestart',
+	VideoRewind = 'VideoRewind',
+	VideoFastForward = 'VideoFastForward',
+	VideoPlay = 'VideoPlay',
+	VideoPause = 'VideoPause',
+
+	// Quick Screens
+	ShowBlankQuickScreen = 'ShowBlankQuickScreen',
+	ShowLogoQuickScreen = 'ShowLogoQuickScreen',
+	ShowNoTextQuickScreen = 'ShowNoTextQuickScreen',
+	ShowFloatingHeartsQuickScreen = 'ShowFloatingHeartsQuickScreen',
+	ShowFloatingAmensQuickScreen = 'ShowFloatingAmensQuickScreen',
+	ShowAmenQuickScreen = 'ShowAmenQuickScreen',
+	ShowHallelujahQuickScreen = 'ShowHallelujahQuickScreen',
+	ShowPraiseTheLordQuickScreen = 'ShowPraiseTheLordQuickScreen',
+	ShowHeIsRisenQuickScreen = 'ShowHeIsRisenQuickScreen',
+	ShowHeIsRisenWhiteQuickScreen = 'ShowHeIsRisenWhiteQuickScreen',
+	ShowText = 'ShowText',
+	ShowLastSlide = 'ShowLastSlide',
+
+	// On/Off Air
+	GoOnAir = 'GoOnAir',
+	GoOffAir = 'GoOffAir',
+}
+
+export enum IndexedAppCommand {
+	GoToSlide = 'GoToSlide',
+	GoToServiceItem = 'GoToServiceItem',
+	GoToSong = 'GoToSong',
+	ShowCustomQuickScreen = 'ShowCustomQuickScreen',
+	ShowSongLyricsVerseByIndex = 'ShowSongLyricsVerseByIndex',
+	ShowSongLyricsBridgeByIndex = 'ShowSongLyricsBridgeByIndex',
+	ShowSongLyricsChorusByIndex = 'ShowSongLyricsChorusByIndex',
+	ShowSongLyricsPreChorusByIndex = 'ShowSongLyricsPreChorusByIndex',
+	ShowSongLyricsEndingByIndex = 'ShowSongLyricsEndingByIndex',
+	ShowSongLyricsInterludeByIndex = 'ShowSongLyricsInterludeByIndex',
+	ShowSongLyricsTagByIndex = 'ShowSongLyricsTagByIndex',
+}
+
+export const AppCommand = {
+  ...SimpleAppCommand,
+  ...IndexedAppCommand,
+};
+
+export type AppCommand = keyof typeof AppCommand;
