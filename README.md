@@ -5,7 +5,7 @@ A Node module to communicate with the [Logos Proclaim](https://proclaim.logos.co
 Local Wi-Fi APIs.
 
 ```TypeScript
-import { ProclaimAPI } from 'logos-proclaim'
+import { ProclaimAPI } from '@hussra/logos-proclaim'
 
 const proclaim = new ProclaimAPI()
 await proclaim.configure('192.168.100.10', 'proclaim') // or just configure() if Proclaim is running on localhost
@@ -29,7 +29,7 @@ The `log` event is used to provide a logging-framework-agnostic way for the libr
 Commands using Proclaim's App Command API can be sent using `proclaim.sendAppCommand()` e.g.
 
 ```TypeScript
-import { AppCommand } from 'logos-proclaim'
+import { AppCommand } from '@hussra/logos-proclaim'
 
 await proclaim.sendAppCommand({command: AppCommand.GoOnAir})
 ```
