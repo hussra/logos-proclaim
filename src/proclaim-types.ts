@@ -9,8 +9,8 @@ export interface ProclaimAppCommandAPIAuthResponse {
  * Proclaim Local Wi-Fi API authentication response from /auth/control
  */
 export interface ProclaimLocalWiFiAPIAuthResponse {
-  authenticationToken: string
-  connectionId: string
+	authenticationToken: string
+	connectionId: string
 }
 
 /**
@@ -121,7 +121,7 @@ export enum SimpleAppCommand {
 	NextSlide = 'NextSlide',
 	PreviousSlide = 'PreviousSlide',
 	NextServiceItem = 'NextServiceItem',
-	PreviousServiceItem = 	'PreviousServiceItem',
+	PreviousServiceItem = 'PreviousServiceItem',
 
 	// Service Parts
 	StartPreService = 'StartPreService',
@@ -172,8 +172,8 @@ export enum IndexedAppCommand {
 }
 
 export const AppCommand = {
-  ...SimpleAppCommand,
-  ...IndexedAppCommand,
-};
+	...SimpleAppCommand,
+	...IndexedAppCommand,
+}
 
-export type AppCommand = keyof typeof AppCommand;
+export type AppCommand = keyof typeof AppCommand
