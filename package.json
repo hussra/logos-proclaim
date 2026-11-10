@@ -32,6 +32,10 @@
   "type": "module",
   "main": "dist/proclaim-api.js",
   "types": "dist/proclaim-api.d.ts",
+  "dependencies": {
+    "emittery": "^2.2.0",
+    "undici": "^8.12.3"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.6",
@@ -43,8 +47,7 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1"
   },
-  "dependencies": {
-    "emittery": "^2.2.0",
-    "undici": "^8.12.3"
-  }
+  "files": [
+    "dist/"
+  ]
 }
