@@ -20,10 +20,11 @@
   },
   "packageManager": "yarn@4.18.0",
   "scripts": {
+    "prepare": "husky",
+    "prepack": "yarn build",
     "build": "rimraf dist && tsc",
     "dev": "tsc --watch",
-    "lint": "eslint .",
-    "prepare": "husky"
+    "lint": "eslint ."
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
