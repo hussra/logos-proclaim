@@ -1,6 +1,6 @@
 {
   "name": "@hussra/logos-proclaim",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Node module to communicate with Logos Proclaim through its App Command and Remote APIs",
   "keywords": [
     "logos",
