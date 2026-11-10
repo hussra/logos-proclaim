@@ -131,7 +131,7 @@ export enum SimpleAppCommand {
 
 	// Media
 	NextAudioItem = 'NextAudioItem',
-	PreviousAudioItem = 'PreviousPreviousAudioItem', // sic
+	PreviousPreviousAudioItem = 'PreviousPreviousAudioItem', // sic
 	VideoRestart = 'VideoRestart',
 	VideoRewind = 'VideoRewind',
 	VideoFastForward = 'VideoFastForward',
