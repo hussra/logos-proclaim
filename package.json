@@ -18,7 +18,7 @@
     "name": "Richard Huss",
     "email": "richard@huss.org.uk"
   },
-  "packageManager": "yarn@4.18.0",
+  "packageManager": "yarn@4.18.1",
   "scripts": {
     "prepare": "husky",
     "prepack": "yarn build",
