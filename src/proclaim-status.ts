@@ -51,7 +51,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 	#appCommandAPIAuthToken = ''
 	#localWiFiAPIAuthenticated = false
 	#localWiFiAPIConnectionId = ''
-	#localWiFiAPIAuthToken = ''
+	#localWifiAPIAuthToken = ''
 
 	#presentation: Presentation | null = null
 	#itemCount = 0
@@ -71,6 +71,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 
 	constructor() {
 		super()
+		this.initialize()
 	}
 
 	/**
@@ -198,12 +199,12 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 	 * Auth token for the local Wi-Fi API
 	 */
 	get localWifiAPIAuthToken() {
-		return this.#localWiFiAPIAuthToken
+		return this.#localWifiAPIAuthToken
 	}
 
 	set localWifiAPIAuthToken(value: string) {
-		if (this.#localWiFiAPIAuthToken !== value) {
-			this.#localWiFiAPIAuthToken = value
+		if (this.#localWifiAPIAuthToken !== value) {
+			this.#localWifiAPIAuthToken = value
 		}
 	}
 
@@ -389,5 +390,35 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 			this.#servicePart = value
 			this.emit('servicePart', value)
 		}
+	}
+
+	initialize() {
+		this.configured = false
+		this.configValid = false
+		this.connected = false
+		this.appCommandAPIAuthenticated = false
+		this.onAir = false
+
+		this.sessionId = ''
+		this.appCommandAPIAuthToken = ''
+		this.localWiFiAPIAuthenticated = false
+		this.localWiFiAPIConnectionId = ''
+		this.localWifiAPIAuthToken = ''
+
+		this.presentation = null
+		this.itemCount = 0
+		this.songCount = 0
+		this.presentationLocalRevision = 0
+		this.step = 0
+
+		this.itemId = ''
+		this.slideIndex = 0
+		this.itemIndex = -1
+		this.itemTitle = ''
+		this.itemKind = null
+		this.itemSlideCount = 0
+		this.quickScreenKind = QuickScreenKind.None
+		this.mediaState = MediaState.Playing
+		this.servicePart = null
 	}
 }

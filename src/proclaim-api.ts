@@ -29,10 +29,10 @@ export class ProclaimAPI {
 	#password?: string
 
 	#pollInterval?: ReturnType<typeof setInterval>
-
 	#statusPromise?: Promise<void> | null
 
 	#status: ProclaimStatus = new ProclaimStatus()
+	#statusListenersAdded = false
 
 	/**
 	 * The IP address of the computer where Proclaim is running
@@ -88,13 +88,19 @@ export class ProclaimAPI {
 			level: LogLevel.INFO,
 			message: `Configuring Proclaim API with IP ${ip} and password ${password ? '***' : '(none)'}`,
 		})
+
+		this.#status.initialize()
+
 		this.#ip = ip || '127.0.0.1'
 		this.#password = password || ''
 
 		this.#status.configured = true
 		this.#status.configValid = this.configIsValid()
 
-		this.addEventListeners()
+		if (!this.#statusListenersAdded) {
+			this.addEventListeners()
+			this.#statusListenersAdded = true
+		}
 
 		if (this.#pollInterval !== undefined) {
 			clearInterval(this.#pollInterval)
