@@ -63,7 +63,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 	#itemId = ''
 	#slideIndex = 0
 	#itemIndex = -1
-	#songIndex = 0
+	#songIndex = -1
 	#itemTitle = ''
 	#itemKind: ServiceItemKind | null = null
 	#itemSlideCount = 0
