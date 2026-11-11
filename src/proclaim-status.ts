@@ -30,6 +30,7 @@ export interface ProclaimStatusEvents {
 	itemKind: ServiceItemKind | null
 	itemSlideCount: number
 	slideIndex: number
+	songIndex: number
 	quickScreenKind: QuickScreenKind
 	mediaState: MediaState
 	servicePart: ServicePart | null
@@ -62,6 +63,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 	#itemId = ''
 	#slideIndex = 0
 	#itemIndex = -1
+	#songIndex = 0
 	#itemTitle = ''
 	#itemKind: ServiceItemKind | null = null
 	#itemSlideCount = 0
@@ -306,6 +308,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 		}
 	}
 
+	/**
+	 * The index of the currently showing service item
+	 */
 	get itemIndex() {
 		return this.#itemIndex
 	}
@@ -314,6 +319,20 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 		if (this.#itemIndex !== value) {
 			this.#itemIndex = value
 			this.emit('itemIndex', value)
+		}
+	}
+
+	/**
+	 * The index of the currently showing song, or 0 if a song is not currently showing
+	 */
+	get songIndex() {
+		return this.#songIndex
+	}
+
+	set songIndex(value: number) {
+		if (this.#songIndex !== value) {
+			this.#songIndex = value
+			this.emit('songIndex', value)
 		}
 	}
 

@@ -213,12 +213,23 @@ export class ProclaimAPI {
 			} else {
 				this.#status.servicePart = ServicePart.PostService
 			}
+
+			if (item?.kind === ServiceItemKind.SongLyrics) {
+				const index =
+					this.#status.presentation?.serviceItems
+						.filter((item) => item.kind === ServiceItemKind.SongLyrics)
+						.findIndex((item) => item.id === data) ?? -1
+				this.#status.songIndex = index + 1
+			} else {
+				this.#status.songIndex = 0
+			}
 		} else {
 			this.#status.itemIndex = -1
 			this.#status.itemTitle = ''
 			this.#status.itemKind = null
 			this.#status.itemSlideCount = 0
 			this.#status.servicePart = null
+			this.#status.songIndex = 0
 		}
 	}
 
