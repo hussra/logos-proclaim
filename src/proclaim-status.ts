@@ -62,7 +62,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 	#step = 0
 
 	#itemId = ''
-	#slideIndex = 0
+	#slideIndex = -1
 	#itemIndex = -1
 	#songIndex = -1
 	#itemTitle = ''
@@ -444,7 +444,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 		this.step = 0
 
 		this.itemId = ''
-		this.slideIndex = 0
+		this.slideIndex = -1
 		this.itemIndex = -1
 		this.itemTitle = ''
 		this.itemKind = null
