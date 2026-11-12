@@ -195,11 +195,13 @@ export class ProclaimAPI {
 		const item = this.#status.presentation?.serviceItems[itemIndex]
 
 		if (item) {
+			// Set item properties
 			this.#status.itemIndex = itemIndex
 			this.#status.itemTitle = item?.title
 			this.#status.itemKind = item?.kind
 			this.#status.itemSlideCount = item?.slides.length
 
+			// Assess which service part we are in and set servicePart
 			const warmupStartIndex = this.#status.presentation?.warmupStartIndex ?? -1
 			const serviceStartIndex = this.#status.presentation?.serviceStartIndex ?? -1
 			const postServiceStartIndex = this.#status.presentation?.postServiceStartIndex ?? -1
@@ -214,6 +216,7 @@ export class ProclaimAPI {
 				this.#status.servicePart = ServicePart.PostService
 			}
 
+			// If this is a song, figure out which one to set songIndex
 			if (item?.kind === ServiceItemKind.SongLyrics) {
 				this.#status.songIndex =
 					this.#status.presentation?.serviceItems
@@ -222,6 +225,16 @@ export class ProclaimAPI {
 			} else {
 				this.#status.songIndex = -1
 			}
+
+			// Look to see if the previous item (if any) was a stage direction
+			if (itemIndex > 0) {
+				const previousItem = this.#status.presentation?.serviceItems[itemIndex - 1]
+				if (previousItem?.kind === ServiceItemKind.StageDirectionCue) {
+					this.#status.stageDirection = previousItem.title
+				} else {
+					this.#status.stageDirection = ''
+				}
+			}
 		} else {
 			this.#status.itemIndex = -1
 			this.#status.itemTitle = ''
@@ -229,6 +242,7 @@ export class ProclaimAPI {
 			this.#status.itemSlideCount = 0
 			this.#status.servicePart = null
 			this.#status.songIndex = -1
+			this.#status.stageDirection = ''
 		}
 	}
 

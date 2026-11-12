@@ -34,6 +34,7 @@ export interface ProclaimStatusEvents {
 	quickScreenKind: QuickScreenKind
 	mediaState: MediaState
 	servicePart: ServicePart | null
+	stageDirection: string
 	log: { level: LogLevel; message: string; error?: Error }
 }
 
@@ -70,6 +71,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 	#quickScreenKind = QuickScreenKind.None
 	#mediaState = MediaState.Playing
 	#servicePart: ServicePart | null = null
+	#stageDirection = ''
 
 	constructor() {
 		super()
@@ -411,6 +413,17 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 		}
 	}
 
+	get stageDirection(): string {
+		return this.#stageDirection
+	}
+
+	set stageDirection(value: string) {
+		if (this.#stageDirection !== value) {
+			this.#stageDirection = value
+			this.emit('stageDirection', value)
+		}
+	}
+
 	initialize() {
 		this.configured = false
 		this.configValid = false
@@ -439,5 +452,6 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 		this.quickScreenKind = QuickScreenKind.None
 		this.mediaState = MediaState.Playing
 		this.servicePart = null
+		this.#stageDirection = ''
 	}
 }
