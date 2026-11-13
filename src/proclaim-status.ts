@@ -1,5 +1,12 @@
 import Emittery from 'emittery'
-import { MediaState, QuickScreenKind, ServiceItemKind, ServicePart, type Presentation } from './proclaim-types.js'
+import {
+	MediaState,
+	QuickScreenKind,
+	ServiceItemKind,
+	ServicePart,
+	type Presentation,
+	type ServiceItemGrouping,
+} from './proclaim-types.js'
 
 export enum LogLevel {
 	DEBUG,
@@ -35,6 +42,9 @@ export interface ProclaimStatusEvents {
 	mediaState: MediaState
 	servicePart: ServicePart | null
 	stageDirection: string
+	groupings: ServiceItemGrouping[]
+	groupingTitle: string
+	groupingId: string
 	log: { level: LogLevel; message: string; error?: Error }
 }
 
@@ -72,6 +82,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 	#mediaState = MediaState.Playing
 	#servicePart: ServicePart | null = null
 	#stageDirection = ''
+	#groupings: ServiceItemGrouping[] = []
+	#groupingTitle = ''
+	#groupingId = ''
 
 	constructor() {
 		super()
@@ -413,6 +426,9 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 		}
 	}
 
+	/**
+	 * Any stage direction related to the curent on-screen item
+	 */
 	get stageDirection(): string {
 		return this.#stageDirection
 	}
@@ -421,6 +437,48 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 		if (this.#stageDirection !== value) {
 			this.#stageDirection = value
 			this.emit('stageDirection', value)
+		}
+	}
+
+	/**
+	 * Array of service item groupings within the on-screen presentation
+	 */
+	get groupings(): Readonly<ServiceItemGrouping>[] {
+		return this.#groupings
+	}
+
+	set groupings(value: ServiceItemGrouping[]) {
+		if (this.#groupings !== value) {
+			this.#groupings = value
+			this.emit('groupings', value)
+		}
+	}
+
+	/**
+	 * Title of the service item grouping to which the on-screen item belongs
+	 */
+	get groupingTitle(): string {
+		return this.#groupingTitle
+	}
+
+	set groupingTitle(value: string) {
+		if (this.#groupingTitle !== value) {
+			this.#groupingTitle = value
+			this.emit('groupingTitle', value)
+		}
+	}
+
+	/**
+	 * ID of the service item grouping to which the on-screen item belongs
+	 */
+	get groupingId(): string {
+		return this.#groupingId
+	}
+
+	set groupingId(value: string) {
+		if (this.#groupingId !== value) {
+			this.#groupingId = value
+			this.emit('groupingId', value)
 		}
 	}
 
@@ -453,5 +511,8 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 		this.mediaState = MediaState.Playing
 		this.servicePart = null
 		this.#stageDirection = ''
+		this.#groupings = []
+		this.#groupingTitle = ''
+		this.#groupingId = ''
 	}
 }

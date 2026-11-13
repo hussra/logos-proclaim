@@ -207,9 +207,23 @@ export enum IndexedAppCommand {
 	ShowSongLyricsTagByIndex = 'ShowSongLyricsTagByIndex',
 }
 
+/**
+ * Any App Command whether indexed or not
+ */
 export const AppCommand = {
 	...SimpleAppCommand,
 	...IndexedAppCommand,
 }
 
 export type AppCommand = keyof typeof AppCommand
+
+/**
+ * A grouping of service items with a title, ID (of the 'Grouping' item that opens the group),
+ * and indices of the opening and closing 'Grouping items
+ */
+export interface ServiceItemGrouping {
+	title: string
+	id: string
+	first: number
+	last: number
+}

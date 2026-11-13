@@ -9,6 +9,7 @@ import {
 	type PresentationStatus,
 	type ProclaimAppCommandAPIAuthResponse,
 	type ProclaimLocalWiFiAPIAuthResponse,
+	type ServiceItemGrouping,
 } from './proclaim-types.js'
 
 export * from './proclaim-types.js'
@@ -151,6 +152,7 @@ export class ProclaimAPI {
 			this.#status.presentationLocalRevision = data.localRevision
 			this.#status.itemCount = data.serviceItems.length
 			this.#status.songCount = data.serviceItems.filter((item) => item.kind === ServiceItemKind.SongLyrics).length
+			this.#status.groupings = this.findGroupings(data)
 
 			// If we already have a current itemId, we should recalculate status properties that depend on it
 			if (this.#status.itemId && this.#status.itemId !== '') {
@@ -183,6 +185,36 @@ export class ProclaimAPI {
 
 			this.setItemProperties(data)
 		})
+	}
+
+	/**
+	 * Loop through the on-screen presentation and prepare a summary of the service item groupings within it
+	 * @param presentation - On-screen Presentation
+	 * @returns array of ServiceItemGroupings
+	 */
+	private findGroupings(presentation: Presentation): ServiceItemGrouping[] {
+		const groupingItems = presentation.serviceItems.filter((item) => item.kind === ServiceItemKind.Grouping)
+		const groupings: ServiceItemGrouping[] = []
+		let grouping: ServiceItemGrouping
+
+		groupingItems.forEach((item, index) => {
+			if (index % 2 === 0) {
+				grouping = {
+					title: item.title,
+					id: item.id,
+					first: presentation.serviceItems.findIndex((fullPresentationItem) => fullPresentationItem.id === item.id),
+					last: -1,
+				}
+			} else {
+				if (grouping) {
+					grouping.last = presentation.serviceItems.findIndex(
+						(fullPresentationItem) => fullPresentationItem.id === item.id,
+					)
+					groupings.push(grouping)
+				}
+			}
+		})
+		return groupings
 	}
 
 	/**
@@ -235,7 +267,20 @@ export class ProclaimAPI {
 					this.#status.stageDirection = ''
 				}
 			}
+
+			// Look to see if we're within an item grouping
+			const grouping = this.#status.groupings.find(
+				(grouping) => itemIndex >= grouping.first && itemIndex <= grouping.last,
+			)
+			if (grouping) {
+				this.#status.groupingId = grouping.id
+				this.#status.groupingTitle = grouping.title
+			} else {
+				this.#status.groupingId = ''
+				this.#status.groupingTitle = ''
+			}
 		} else {
+			// No current item, clear all related status properties
 			this.#status.itemIndex = -1
 			this.#status.itemTitle = ''
 			this.#status.itemKind = null
@@ -243,6 +288,8 @@ export class ProclaimAPI {
 			this.#status.servicePart = null
 			this.#status.songIndex = -1
 			this.#status.stageDirection = ''
+			this.#status.groupingId = ''
+			this.#status.groupingTitle = ''
 		}
 	}
 
