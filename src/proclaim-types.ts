@@ -42,15 +42,49 @@ export interface Presentation {
 }
 
 /**
- * Types of service items - there will be more to follow, I am sure, but awaiting documentation
+ * Service item types that can be displayed on the screen
  */
-export enum ServiceItemKind {
+export enum DisplayableServiceItemKind {
 	Announcement = 'Announcement',
+	Announcement2 = 'Announcement2',
+	BiblePassage = 'BiblePassage',
+	BibleTrivia = 'BibleTrivia',
+	Clone = 'Clone',
 	Content = 'Content',
+	Grouping = 'Grouping',
+	ImageSlideshow = 'ImageSlideshow',
+	OnScreenBible = 'OnScreenBible',
+	PowerPoint = 'PowerPoint',
+	PowerPointDriven = 'PowerPointDriven',
 	StageDirectionCue = 'StageDirectionCue',
 	SongLyrics = 'SongLyrics',
-	Grouping = 'Grouping',
+	Video = 'Video',
+	WebPage = 'WebPage',
+	SurveyQuestion = 'SurveyQuestion',
+	SurveyResults = 'SurveyResults',
 }
+
+/**
+ * Service item types that cannot be displayed on the screen
+ */
+export enum NonDisplayableServiceItemKind {
+	AudioRecordingCue = 'AudioRecordingCue',
+	ConfidenceTimerCue = 'ConfidenceTimerCue',
+	Grouping = 'Grouping',
+	LiveStreamCue = 'LiveStreamCue',
+	SermonEditorSection = 'SermonEditorSection', // At present it's just a guess that this is non-displayable
+	StageDirectionCue = 'StageDirectionCue',
+}
+
+/**
+ * All service item types
+ */
+export const ServiceItemKind = {
+	...DisplayableServiceItemKind,
+	...NonDisplayableServiceItemKind,
+}
+
+export type ServiceItemKind = keyof typeof ServiceItemKind
 
 /**
  * An item within a presentation
@@ -99,11 +133,13 @@ export enum QuickScreenKind {
 }
 
 /**
- * Media States - there may be more to follow, but awaiting documentation
+ * Media States
  */
 export enum MediaState {
+	None = '',
+	Paused = 'Paused',
 	Playing = 'Playing',
-	Stopped = '', // At least, that's my guess at what it means
+	Stopped = 'Stopped',
 }
 
 /**
