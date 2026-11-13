@@ -215,7 +215,7 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 	/**
 	 * The currently on-air presentation
 	 */
-	get presentation() {
+	get presentation(): Readonly<Presentation> | null {
 		return this.#presentation
 	}
 
