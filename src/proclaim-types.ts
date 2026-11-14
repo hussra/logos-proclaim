@@ -51,7 +51,6 @@ export enum DisplayableServiceItemKind {
 	BibleTrivia = 'BibleTrivia',
 	Clone = 'Clone',
 	Content = 'Content',
-	Grouping = 'Grouping',
 	ImageSlideshow = 'ImageSlideshow',
 	OnScreenBible = 'OnScreenBible',
 	PowerPoint = 'PowerPoint',
