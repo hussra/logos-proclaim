@@ -2,6 +2,7 @@ import { request, Agent, setGlobalDispatcher, errors } from 'undici'
 import { LogLevel, ProclaimStatus } from './proclaim-status.js'
 import {
 	IndexedAppCommand,
+	MediaState,
 	ServiceItemKind,
 	ServicePart,
 	SimpleAppCommand,
@@ -140,6 +141,7 @@ export class ProclaimAPI {
 				this.#status.localWiFiAPIAuthenticated = false
 				this.#status.localWifiAPIAuthToken = ''
 				this.#status.localWiFiAPIConnectionId = ''
+				this.#status.mediaState = MediaState.Playing
 			}
 		})
 
