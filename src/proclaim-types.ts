@@ -55,7 +55,6 @@ export enum DisplayableServiceItemKind {
 	OnScreenBible = 'OnScreenBible',
 	PowerPoint = 'PowerPoint',
 	PowerPointDriven = 'PowerPointDriven',
-	StageDirectionCue = 'StageDirectionCue',
 	SongLyrics = 'SongLyrics',
 	Video = 'Video',
 	WebPage = 'WebPage',
