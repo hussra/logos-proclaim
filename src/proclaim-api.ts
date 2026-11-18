@@ -289,6 +289,7 @@ export class ProclaimAPI {
 			this.#status.itemSlideCount = 0
 			this.#status.servicePart = null
 			this.#status.songIndex = -1
+			this.#status.slideIndex = -1
 			this.#status.stageDirection = ''
 			this.#status.groupingId = ''
 			this.#status.groupingTitle = ''
