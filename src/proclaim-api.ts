@@ -138,6 +138,7 @@ export class ProclaimAPI {
 				this.#status.itemId = ''
 				this.#status.itemCount = 0
 				this.#status.songCount = 0
+				this.#status.groupings = []
 				this.#status.localWiFiAPIAuthenticated = false
 				this.#status.localWifiAPIAuthToken = ''
 				this.#status.localWiFiAPIConnectionId = ''
