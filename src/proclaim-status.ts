@@ -399,11 +399,10 @@ export class ProclaimStatus extends Emittery<ProclaimStatusEvents> {
 	}
 
 	/**
-	 * The current media state. MediaState.None is taken as synonymous with MediaState.Playing,
-	 * and the former is never returned, always the latter.
+	 * The current media state.
 	 */
 	get mediaState() {
-		return this.#mediaState === MediaState.None ? MediaState.Playing : this.#mediaState
+		return this.#mediaState
 	}
 
 	set mediaState(value: MediaState) {
